@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/spring"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	<!--Camel context to handle all FF to XML conversion -->
+	<camelContext id="bridgeContext" xmlns="http://camel.apache.org/schema/spring">
+		<propertyPlaceholder id="properties" location="application.Properties" />
+		<!-- Route for Store Relcoation feed -->
+		<route id="relocationFeedRoute">
+			<!-- Pick up the flat file from input folder. Once file is processed it 
+				is moved to archive and if it fails it is moved to error folder -->
+			<from
+				uri="file://{{relo_source}}?move={{relo_archive}}&amp;moveFailed=error" />
+			<!-- In case of any RuntimeException the particaluar data row is written 
+				into the error file -->
+			<onException>
+				<exception>java.lang.RuntimeException</exception>
+				<handled>
+					<constant>true</constant>
+				</handled>
+				<setHeader headerName="CamelFileName">
+					<simple>RELO_ERROR_${date:now:yyyyMMdd}.txt
+					</simple>
+				</setHeader>
+				<to uri="file://{{relo_error}}?fileExist=Append" />
+				<log message="${exception.stacktrace}"></log>
+			</onException>
+			<!-- Gets the file header row which will be used to generate the tags 
+				later. Also removes the file header row from file data to help split the 
+				data -->
+			<to uri="bean://resolveHeaderProcessor" />
+			<!-- Set the feedType which will be used to create the Root Tag -->
+			<setHeader headerName="feedType">
+				<simple>RELO</simple>
+			</setHeader>
+			<log loggingLevel="INFO"
+				message="Started tranformation of Data for Store Relocation feed."></log>
+			<!-- Split the flat file to help parallel processing -->
+			<split streaming="true" parallelProcessing="true">
+				<tokenize token="\n" group="1"></tokenize>
+				<!-- Converts the pipe delimited record into a XML using file header 
+					data as tag names -->
+				<to uri="bean://pipeFileToXMLTransformer" />
+				<!-- Use camel split index to generate a XML file with unique id to avaoid 
+					overwriting of XML files -->
+				<setHeader headerName="CamelFileName">
+					<simple>RELO_IN_${header[CamelSplitIndex]}.xml
+					</simple>
+				</setHeader>
+				<!-- Save the XML file in the destination folder -->
+				<to uri="file://{{relo_destination}}" />
+			</split>
+			<log loggingLevel="INFO"
+				message="Completed tranformation of Data for Store Relocation feed."></log>
+		</route>
+		<!-- Route for Store feed -->
+		<route id="storeFeedRoute">
+			<!-- Pick up the flat file from input folder. Once file is processed it 
+				is moved to archive and if it fails it is moved to error folder -->
+			<from
+				uri="file://{{store_source}}?move={{store_archive}}&amp;moveFailed=error" />
+			<!-- In case of any RuntimeException the particaluar data row is written 
+				into the error file -->
+			<onException>
+				<exception>java.lang.RuntimeException</exception>
+				<handled>
+					<constant>true</constant>
+				</handled>
+				<setHeader headerName="CamelFileName">
+					<simple>STORE_ERROR_${date:now:yyyyMMdd}.txt
+					</simple>
+				</setHeader>
+				<to uri="file://{{store_error}}?fileExist=Append" />
+				<log message="${exception.stacktrace}"></log>
+			</onException>
+			<!-- Gets the file header row which will be used to generate the tags 
+				later. Also removes the file header row from file data to help split the 
+				data -->
+			<to uri="bean://resolveHeaderProcessor" />
+			<!-- Set the feedType which will be used to create the Root Tag -->
+			<setHeader headerName="feedType">
+				<simple>STORE</simple>
+			</setHeader>
+			<log loggingLevel="INFO"
+				message="Started tranformation of Data for Store  feed."></log>
+			<!-- Split the flat file to help parallel processing -->
+			<split streaming="true" parallelProcessing="true">
+				<tokenize token="\n" group="1"></tokenize>
+				<!-- Converts the pipe delimited record into a XML using file header 
+					data as tag names -->
+				<to uri="bean://pipeFileToXMLTransformer" />
+				<!-- Use camel split index to generate a XML file with unique id to avaoid 
+					overwriting of XML files -->
+				<setHeader headerName="CamelFileName">
+					<simple>STORE_IN_${header[CamelSplitIndex]}.xml
+					</simple>
+				</setHeader>
+				<!-- Save the XML file in the destination folder -->
+				<to uri="file://{{store_destination}}" />
+			</split>
+			<log loggingLevel="INFO"
+				message="Completed tranformation of Data for Store  feed."></log>
+		</route>
+		<!-- Route for Vendor feed -->
+		<route id="vendorFeedRoute">
+			<!-- Pick up the flat file from input folder. Once file is processed it 
+				is moved to archive and if it fails it is moved to error folder -->
+			<from
+				uri="file://{{vendor_source}}?move={{vendor_archive}}&amp;moveFailed=error" />
+			<!-- In case of any RuntimeException the particaluar data row is written 
+				into the error file -->
+			<onException>
+				<exception>java.lang.RuntimeException</exception>
+				<handled>
+					<constant>true</constant>
+				</handled>
+				<setHeader headerName="CamelFileName">
+					<simple>VENDOR_ERROR_${date:now:yyyyMMdd}.txt
+					</simple>
+				</setHeader>
+				<to uri="file://{{vendor_error}}?fileExist=Append" />
+				<log message="${exception.stacktrace}"></log>
+			</onException>
+			<!-- Gets the file header row which will be used to generate the tags 
+				later. Also removes the file header row from file data to help split the 
+				data -->
+			<to uri="bean://resolveHeaderProcessor" />
+			<!-- Set the feedType which will be used to create the Root Tag -->
+			<setHeader headerName="feedType">
+				<simple>VENDOR</simple>
+			</setHeader>
+			<log loggingLevel="INFO"
+				message="Started tranformation of Data for Vendor feed."></log>
+			<!-- Split the flat file to help parallel processing -->
+			<split streaming="true" parallelProcessing="true">
+				<tokenize token="\n" group="1"></tokenize>
+				<!-- Converts the pipe delimited record into a XML using file header 
+					data as tag names -->
+				<to uri="bean://pipeFileToXMLTransformer" />
+				<!-- Use camel split index to generate a XML file with unique id to avaoid 
+					overwriting of XML files -->
+				<setHeader headerName="CamelFileName">
+					<simple>VENDOR_IN_${header[CamelSplitIndex]}.xml
+					</simple>
+				</setHeader>
+				<!-- Save the XML file in the destination folder -->
+				<to uri="file://{{vendor_destination}}" />
+			</split>
+			<log loggingLevel="INFO"
+				message="Completed tranformation of Data for Vendor feed."></log>
+		</route>
+		<!-- Route for Return Points feed -->
+		<route id="RPTFeedRoute">
+			<!-- Pick up the flat file from input folder. Once file is processed it 
+				is moved to archive and if it fails it is moved to error folder -->
+			<from
+				uri="file://{{rpt_source}}?move={{rpt_archive}}&amp;moveFailed=error" />
+			<!-- In case of any RuntimeException the particaluar data row is written 
+				into the error file -->
+			<onException>
+				<exception>java.lang.RuntimeException</exception>
+				<handled>
+					<constant>true</constant>
+				</handled>
+				<setHeader headerName="CamelFileName">
+					<simple>RPT_ERROR_${date:now:yyyyMMdd}.txt
+					</simple>
+				</setHeader>
+				<to uri="file://{{rpt_error}}?fileExist=Append" />
+				<log message="${exception.stacktrace}"></log>
+			</onException>
+			<!-- Gets the file header row which will be used to generate the tags 
+				later. Also removes the file header row from file data to help split the 
+				data -->
+			<to uri="bean://resolveHeaderProcessor" />
+			<!-- Set the feedType which will be used to create the Root Tag -->
+			<setHeader headerName="feedType">
+				<simple>RPT</simple>
+			</setHeader>
+			<log loggingLevel="INFO"
+				message="Started tranformation of Data for Return Point feed."></log>
+			<!-- Split the flat file to help parallel processing -->
+			<split streaming="true" parallelProcessing="true">
+				<tokenize token="\n" group="1"></tokenize>
+				<!-- Converts the pipe delimited record into a XML using file header 
+					data as tag names -->
+				<to uri="bean://pipeFileToXMLTransformer" />
+				<!-- Use camel split index to generate a XML file with unique id to avaoid 
+					overwriting of XML files -->
+				<setHeader headerName="CamelFileName">
+					<simple>RPT_IN_${header[CamelSplitIndex]}.xml
+					</simple>
+				</setHeader>
+				<!-- Save the XML file in the destination folder -->
+				<to uri="file://{{rpt_destination}}" />
+			</split>
+			<log loggingLevel="INFO"
+				message="Completed tranformation of Data for Return Point feed."></log>
+		</route>
+		<!-- Route for Recall and OverStock feed -->
+		<route id="recallFeedRoute">
+			<!-- Pick up the flat file from input folder. Once file is processed it 
+				is moved to archive and if it fails it is moved to error folder -->
+			<from
+				uri="file://{{recall_source}}?move={{recall_archive}}&amp;moveFailed=error" />
+			<!-- In case of any RuntimeException the particaluar data row is written 
+				into the error file -->
+			<onException>
+				<exception>java.lang.RuntimeException</exception>
+				<handled>
+					<constant>true</constant>
+				</handled>
+				<setHeader headerName="CamelFileName">
+					<simple>RECALL_ERROR_${date:now:yyyyMMdd}.txt
+					</simple>
+				</setHeader>
+				<to uri="file://{{recall_error}}?fileExist=Append" />
+				<log message="${exception.stacktrace}"></log>
+			</onException>
+			<!-- Gets the file header row which will be used to generate the tags 
+				later. Also removes the file header row from file data to help split the 
+				data -->
+			<to uri="bean://resolveHeaderProcessor" />
+			<!-- Set the feedType which will be used to create the Root Tag -->
+			<setHeader headerName="feedType">
+				<simple>RECALL</simple>
+			</setHeader>
+			<log loggingLevel="INFO"
+				message="Started tranformation of Data for Recall and Overstock feed."></log>
+			<!-- Split the flat file to help parallel processing -->
+			<split streaming="true" parallelProcessing="true">
+				<tokenize token="\n" group="1"></tokenize>
+				<!-- Converts the pipe delimited record into a XML using file header 
+					data as tag names -->
+				<to uri="bean://pipeFileToXMLTransformer" />
+				<!-- Use camel split index to generate a XML file with unique id to avaoid 
+					overwriting of XML files -->
+				<setHeader headerName="CamelFileName">
+					<simple>RECALL_IN_${header[CamelSplitIndex]}.xml
+					</simple>
+				</setHeader>
+				<!-- Save the XML file in the destination folder -->
+				<to uri="file://{{recall_destination}}" />
+			</split>
+			<log loggingLevel="INFO"
+				message="Completed tranformation of Data for Recall and Overstock feed."></log>
+		</route>
+
+		<!-- Route for ASN feed -->
+		 <route id="ASNFeedRoute">
+			<!-- Pick up the flat file from input folder. Once file is processed it 
+				is moved to archive and if it fails it is moved to error folder -->
+			<from
+				uri="file://{{asn_source}}?move={{asn_archive}}&amp;moveFailed=error" />
+			<!-- In case of any RuntimeException the particaluar data row is written 
+				into the error file -->
+			<onException>
+				<exception>java.lang.RuntimeException</exception>
+				<handled>
+					<constant>true</constant>
+				</handled>
+				<setHeader headerName="CamelFileName">
+					<simple>ASN_ERROR_${date:now:yyyyMMdd}.txt
+					</simple>
+				</setHeader>
+				<to uri="file://{{asn_error}}?fileExist=Append" />
+				<log message="${exception.stacktrace}"></log>
+			</onException>
+			<!-- Gets the file header row which will be used to generate the tags 
+				later. Also removes the file header row from file data to help split the 
+				data -->
+			<to uri="bean://resolveHeaderProcessor" />
+			<!-- Set the feedType which will be used to create the Root Tag -->
+			<setHeader headerName="feedType">
+				<simple>ASN</simple>
+			</setHeader>
+			<log loggingLevel="INFO"
+				message="Started tranformation of Data for ASN feed."></log>
+			<!-- Split the flat file to help parallel processing -->
+			<split streaming="true" parallelProcessing="true">
+				<tokenize token="\n" group="1"></tokenize>
+				<!-- Converts the pipe delimited record into a XML using file header 
+					data as tag names -->
+				<to uri="bean://pipeFileToXMLTransformer" />
+				<!-- Use camel split index to generate a XML file with unique id to avaoid 
+					overwriting of XML files -->
+				<setHeader headerName="CamelFileName">
+					<simple>ASN_IN_${header[CamelSplitIndex]}.xml
+					</simple>
+				</setHeader>
+				<!-- Save the XML file in the destination folder -->
+				<to uri="file://{{asn_destination}}" />
+			</split>
+			<log loggingLevel="INFO"
+				message="Completed tranformation of Data for ASN feed."></log>
+		</route> 
+	</camelContext>
+	<!-- Bean declarations -->
+	<!-- Bean class to convert one row of pipe limited text to XML file -->
+	<bean id="pipeFileToXMLTransformer"
+		class="com.walmart.logistics.rlog.bridge.business.impl.PipeFileToXMLTransformer">
+	</bean>
+	
+	<!-- Bean class to convert one row of pipe limited text to XML file -->
+	<bean id="pipeFileToXMLConverter"
+		class="com.walmart.logistics.rlog.bridge.business.impl.PipeToConverter">
+	</bean>
+	<!-- Bean class to get the header from pipe delimited flat file -->
+	<bean id="resolveHeaderProcessor"
+		class="com.walmart.logistics.rlog.bridge.business.impl.ResolveHeaderProcessor">
+	</bean>
+</beans>
