@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/spring"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	<!--Camel context to handle all FF to XML conversion -->
+	<camelContext id="bridgeContext" xmlns="http://camel.apache.org/schema/spring">
+		<propertyPlaceholder id="properties" location="application.Properties" />
+
+		<!-- Route for ASN feed -->
+		<route id="ASNFeedRoute">
+			<!-- Pick up the flat file from input folder. Once file is processed it 
+				is moved to archive and if it fails it is moved to error folder -->
+			<from
+				uri="file://{{asn_source}}?move={{asn_archive}}&amp;moveFailed=error" />
+			<!-- In case of any RuntimeException the particaluar data row is written 
+				into the error file -->
+			<onException>
+				<exception>java.lang.RuntimeException</exception>
+				<handled>
+					<constant>true</constant>
+				</handled>
+				<setHeader headerName="CamelFileName">
+					<simple>ASN_ERROR_${date:now:yyyyMMdd}.txt
+					</simple>
+				</setHeader>
+				<to uri="file://{{asn_error}}?fileExist=Append" />
+				<log message="${exception.stacktrace}"></log>
+			</onException>
+
+			<!-- Set the feedType which will be used to create the Root Tag -->
+			<setHeader headerName="feedType">
+				<simple>ASN</simple>
+			</setHeader>
+
+			<setHeader headerName="fileHeaderRow">
+				<simple>CONTROL_NBR_DIVISION|CONTROL_NBR_STORE|BOX_ID|RETURN_TYPE|ITEM_NBR|ITEM_EACH_QTY|UPC_NBR|ACT_DEPT|BASE_DIV|DIVISION</simple>
+			</setHeader>
+			<!-- Split the flat file to help parallel processing -->
+			<log loggingLevel="INFO" message="Started tranformation of Data for ASN feed."></log>
+			<split streaming="true" parallelProcessing="true">
+				<tokenize token="\n" group="50000"></tokenize>
+				<!-- Converts the pipe delimited record into a XML using file header 
+					data as tag names -->
+				<to uri="bean://pipeFileToXMLConverter" />
+
+			</split>
+			<log loggingLevel="INFO" message="Completed tranformation of Data for ASN feed."></log>
+		</route>
+	</camelContext>
+	<!-- Bean declarations -->
+	<!-- Bean class to convert one row of pipe limited text to XML file -->
+	<bean id="pipeFileToXMLTransformer"
+		class="com.walmart.logistics.rlog.bridge.business.impl.PipeFileToXMLTransformer">
+	</bean>
+
+	<!-- Bean class to convert one row of pipe limited text to XML file -->
+	<bean id="pipeFileToXMLConverter"
+		class="com.walmart.logistics.rlog.bridge.business.impl.PipeToXMLConverter">
+	</bean>
+	<!-- Bean class to convert one row of pipe limited text to XML file -->
+	<bean id="pipeFileToXMLMillion"
+		class="com.walmart.logistics.rlog.bridge.business.impl.PipeToXMLMillion">
+	</bean>
+	<!-- Bean class to get the header from pipe delimited flat file -->
+	<bean id="resolveHeaderProcessor"
+		class="com.walmart.logistics.rlog.bridge.business.impl.ResolveHeaderProcessor">
+	</bean>
+</beans>
