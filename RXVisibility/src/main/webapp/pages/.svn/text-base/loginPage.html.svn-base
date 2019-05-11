@@ -1,0 +1,174 @@
+<nav class="navbar navbar-default" role="navigation" style="font: white">
+	<!-- Collect the nav links, forms, and other content for toggling -->
+	<div class="collapse navbar-collapse navbar-ex1-collapse"
+		ng-init="tab=1" align="left">
+		<ul class="nav navbar-nav">
+			<li><img src="images/wmt-brand-logo.png" width="90%" style=""
+				height="200%" /></li>
+		</ul>
+		<ul class="nav navbar-nav" style="float: left">
+			<li style="size: 90%"><a><font color="#FFc220" size="3"><b>
+							General Repository
+				</font></b>
+			</a></li>
+		</ul>
+	</div>
+</nav>
+
+
+<div>
+
+	<div>
+		<table>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+
+		</table>
+
+	</div>
+	<form name="loginForm" class="table table-bordered"
+		style="width: 40%; background-color: white; border: 1px outset #007dc6; font-size: 100%; border-radius: 15px 15px 15px 15px;">
+
+		<div
+			style="background-color: #003896; color: white; height: 200%; border-radius: 15px 15px 0px 0px;"
+			ng-switch=errorSwitch>
+			<b>Login</b>
+		</div>
+		<div align="center" autofocus="true">
+			<table width="70%">
+				<tr align="left" ng-repeat="errorItem in errorDescriptionList">
+					<td><span><b><font color="#FF0000" size="1%">{{errorItem}}</font>
+						</b> </span></td>
+				</tr>
+			</table>
+		</div>
+		<table style="width: 60%" align="center">
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td style="color: black"><b>{{fieldValue.genrep_login_label_username}}
+						<font color="#FF0000" size="4%">*</font> <input type="text"
+						class="form-control moz-placeholder"
+						ng-model="genRepPageController.username" class="text" required=""
+						autofocus="autofocus" />
+				</b>
+					<div ng-show="genrepLoginError == 1"
+						style="color: red; font-size: 80%">{{fieldValue.genrep_login_errMsg_username}}</div>
+				</td>
+
+			</tr>
+			<tr ng-hide="genrepLoginError == 1">
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+
+			<tr>
+				<td style="color: black"><b>{{fieldValue.genrep_login_label_password}}
+						<font color="#FF0000" size="4%">*</font> <input type="password"
+						class="form-control moz-placeholder"
+						ng-model="genRepPageController.password" class="text" required="" />
+				</b>
+					<div ng-show="genrepLoginError == 1"
+						style="color: red; font-size: 80%">{{fieldValue.genrep_login_errMsg_password}}</div>
+					</b></td>
+
+			</tr>
+
+			<tr ng-hide="genrepLoginError == 1">
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+
+			<tr>
+				<td style="color: black"><b>{{fieldValue.genrep_login_label_code}}
+						<font color="#FF0000" size="4%">*</font> <!-- <select class="form-control moz-placeholder"	ng-init="genRepPageController.countryCode = options[0]" ng-model="genRepPageController.countryCode" ng-options="option.name for option in countryCodeOptions"></select> -->
+						<select class="form-control moz-placeholder" required=""  ng-change="callingBusinessUnit()" id="selectedValue"
+						ng-model="genRepPageController.countryCode">
+							<option value="1" selected>Walmart US</option>
+							<option value="2">Sam's Club</option>
+							<option value="3">Walmart Puerto Rico</option>
+					</select>
+				</td>
+
+			</tr>
+
+			<tr ng-hide="genrepLoginError == 1">
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+			<!-- <tr>
+				<td style="color: black"><b>{{fieldValue.genrep_login_label_bunumber}}
+				<input type="text" class="form-control moz-placeholder"
+					ng-model="genRepPageController.businessUnitNumber"
+					 CLASS="text" required="" />
+					
+				</td>
+				
+			</tr> -->
+
+			<tr>
+
+				<td align="center">
+					<button type="button" value="Login"
+						ng-disabled="loginForm.$invalid" ng-click="validateLogin()"
+						class="btn btn-secondary">{{fieldValue.genrep_login_btn_login}}</button>
+					<!-- <button type="reset" value="Clear" class="btn btn-primary">{{fieldValue.genrep_login_btn_clear}}</button> -->
+				</td>
+				<td>&nbsp;</td>
+
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+		</table>
+	</form>
+</div>
+

@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<body>
+	<table width="100%">
+		<tr>
+			
+			<td width="100%">
+				<table class="table table-bordered">
+					<tr>
+						<td>
+							<div style="background-color: white; height: 100%;">
+								<div ng-switch=po_hide>
+									<div ng-include="pages/menuPage.html"></div>
+
+
+
+									<div class="alert alert-danger" ng-show="errorVendorDescriptionList.length > 0" align="left" autofocus="true">
+										<table width="100%">
+											<tr align="left"
+												ng-repeat="errorItem in errorVendorDescriptionList">
+												
+												<td><span><b><font color="#FF0000" size="2%">{{errorItem}}</font>
+													</b> </span>
+												</td>
+											</tr>
+										</table>
+									</div>
+									<div class="alert alert-success" ng-show="plainMessageForVendor != '' " align="center" autofocus="true">
+										<table width="100%">
+											<tr align="center">
+												<td><span><b><font color="green" size="4%">{{plainMessageForVendor}}</font>
+													</b> </span>
+												</td>
+											</tr>
+										</table>
+									</div>
+									
+									<table width="100%">
+										<tr>
+											<td>
+												<table width="50%" align="center">
+													<tr>
+														<td width="60%" class="table table-bordered">
+															<div>
+																<form name="vendorTransationForm">
+
+																	<table style="width: 70%" align="center">
+																		<tr>
+																			<td colspan="4"><b>{{fieldValue.genrep_vendor_number}}</b><font
+																				color="#FF0000" size="4%">*</font>
+																			</td>
+
+																			<td>&nbsp;</td>
+																			<td>&nbsp;</td>
+																		</tr>
+																		<tr>
+
+																			<td colspan="1"><input type="text" required=""
+																				ng-model="vendorNumber.value" maxlength="10"
+																				class="form-control moz-placeholder" 
+																				autofocus="autofocus" id="PO_TEXT" ng-enter="fetchVendorDetails(vendorNumber.value)"
+																				ng-change=changeVendorToEmptyPage()> <!-- <div  ng-show="errorSwitch_PO == 1"  style="color:red;font-size: 80%">{{fieldValue.genrep_login_errMsg_poLineNbr}}</div></b> -->
+																				<!-- <div  ng-show="errorSwitch_PO == 0"  style="color:white;font-size: 80%">1</div></b> -->
+																			</td>
+
+																			<td>&nbsp;</td>
+
+
+																			<td colspan="1" align="left"><input
+																				type="button"
+																				ng-disabled="vendorTransationForm.$invalid"
+																				value="{{fieldValue.genrep_retrieve_venor_info}}"
+																				ng-click="fetchVendorDetails(vendorNumber.value)"
+																				class="btn btn-secondary"></input> 
+																			<td>
+																		</tr>
+																		<tr>
+																			<td>&nbsp;</td>
+																			<td>&nbsp;</td>
+																			<td>&nbsp;</td>
+
+																		</tr>
+
+																	</table>
+
+																</form>
+															</div></td>
+													</tr>
+
+												</table></td>
+										</tr>
+									</table>
+									<div id="shipment_lines" style="height: 570px;">
+										<table width="100%" style="text-align: center">
+											<tr>
+												<td width="10%" align="left"><b>{{fieldValue.genrep_vendor_name}} : </b></td>
+												<td width="50%" align="left" colspan="5"><b>{{vendorResponse.statementDetails.vndrName}}</b></td>
+												<td width="40%">&nbsp;</td>
+											</tr>
+										</table>
+									
+										<table width="100%" style="text-align: center">
+										
+											
+											<td width="100%">
+												<div
+													style="height: 570px;overflow: scroll;">
+													<table class="table  table-bordered" style="font-size: 90%;overflow-y: hidden"
+														width="100%">
+														<thead 
+															style="text-align: center; background-color: #8dcdfa;">
+															<td width="5%"><b>{{fieldValue.genrep_statementId}}</b></td>
+															<td width="75%"><b>{{fieldValue.genrep_statement}}</b></td>
+															<td width="5%"><b>{{fieldValue.genrep_userId}}</b>
+															</td>
+															<td width="25%"><b>{{fieldValue.genrep_latestUpdate}}</b>
+															</td>
+														</thead>
+
+														<tbody style="text-align: center"
+															ng-repeat="lineItem in vendorRecord"
+															ng-init = "validateStatement()">
+															<td width="5%">{{lineItem.dummyStatementSeqNbr}}</td>
+															<td width="75%"><textarea  style="overflow:hidden;resize:none" 
+																id="Statement{{lineItem.statementSeqNbr}}"
+																class="form-control moz-placeholder" maxlength = "2048"
+																 onkeypress="textAreaAdjust(this)" 
+																ng-change = "validateStatement()"
+																ng-model="lineItem.transactionStatement" 
+																
+																></textarea>
+															</td>
+															<td width="5%">{{lineItem.userId}}</td>
+															<td width="25%">{{lineItem.effectiveDate}}</td>
+														</tbody>
+
+													</table>
+												</div></td>
+
+										</table>
+										<table>
+											<tr>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+
+											</tr>
+										</table>
+										<table align="center" width="30%">
+											<td width="30%" colspan="2">&nbsp;</td>
+
+											<td width="4%">&nbsp;</td>
+											<td colspan="1"><input type="button"
+												ng-disabled="isTsButtonEnabled"
+												value={{fieldValue.genrep_save}} ng-click="saveStatement(vendorNumber.value)"
+												class="btn btn-secondary"></input> 
+											<td>
+											<td colspan="1"><input type="button" ng-click="clearVendorPage()"
+												ng-disabled="isTsButtonEnabled"
+												value={{fieldValue.genrep_clear}} 
+												class="btn btn-secondary"></input> 
+											<td>
+											<td width="10%" colspan="2">&nbsp;</td>
+										</table>
+
+									</div>
+
+								</div>
+
+							</div></td>
+					</tr>
+				</table></td>
+		</tr>
+	</table>
+	
+	
+</body>
+</html>
+
+

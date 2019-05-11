@@ -1,0 +1,578 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<body>
+	<!-- Start Overlay -->
+	<div id="overlay"></div>
+	<!-- End Overlay -->
+
+	<!-- Start Special Centered Box -->
+	<div id="specialBox">
+
+		<div role="navigation"
+			style="color: white; background-color: #003896; border-radius: 15px 15px 0px 0px;">Confirmation
+			message!</div>
+		<table align="center">
+			<p>Are you sure to close ?</p>
+			<tr>
+
+				<td>
+					<button type="button" class="btn btn-secondary"
+						ng-click="closeTransactionInfo(1)">{{fieldValue.genrep_poInfo_alert_btn_ok}}</button>
+				</td>
+				<td align="right">
+					<button type="button" value="Close" class="btn btn-secondary"
+						onclick="toggleOverlay()" autofocus="autofocus">{{fieldValue.genrep_poInfo_alert_btn_cancel}}</button>
+				</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+		</table>
+
+	</div>
+	<!-- Start Special Centered Box -->
+	<!-- Start Normal Page Content -->
+	<div id="wrapper">
+		<nav class="navbar navbar-default" role="navigation"
+			style="font: white;border: 2px"> <!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse navbar-ex1-collapse" align="left"
+			ng-style="mystyle">
+			<ul class="nav navbar-nav">
+				<li><img src="images/wmt-brand-logo.png" width="90%" style=""
+					height="200%" />
+				</li>
+
+			</ul>
+			<ul class="nav navbar-nav" style="float: left">
+
+				<li style="size: 90%"><a><font color="#ffc220" size="3"><b>
+								General Repository 
+					</font></b> </a>
+				</li>
+			</ul>
+			<ul class="nav navbar-nav" style="float: left">
+
+				<li ng-click="clickMainPage('capture')"
+					ng-class="{'disabled': tab == 1}"><a href="">{{fieldValue.genrep_manual_tab_creatTransaction}}</a>
+				</li>
+				<li ng-click="clickMainPage('retrieve')"
+					ng-class="{'disabled': tab == 2}"><a href="">{{fieldValue.genrep_manual_tab_retrieve}}</a>
+				</li>
+				<li>&nbsp;</li>
+				<li>&nbsp;</li>
+			</ul>
+			<ul class="nav navbar-nav" style="float: right">
+				<li><a><b><font color="white">{{fieldValue.genrep_menu_label_walmartphdc}}
+								6000</font> </b>
+						<li><a><b><font color="white">{{fieldValue.genrep_menu_label_loginuser}}
+										{{loginUser}}</font> </b> </a></li>
+						<li>&nbsp;</li>
+						<li>&nbsp;</li>
+						<li><a href="#/"><font color="#78b9e7">{{fieldValue.genrep_menu_label_logout}}</font>
+						</a></li>
+			</ul>
+		</div>
+		<div style="background-color: white; width: 100%;"
+			ng-controller="genRepPageController" ng-switch=pageNavigator>
+			<div ng-switch-when="capture" align="center" id="saveShipmentForm">
+				<form name="">
+
+					<table width="80%" align="center">
+						<tr>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+						</tr>
+					</table>
+					<div ng-show="waitMessage == 1" style="color: red; font-size: 150%">Please
+						Wait{{waitScreenMessage}}</div>
+					<div ng-show="successMessage == 1"
+						style="color: green; font-size: 150%">Saved Successfully !</div>
+					<table width=80%>
+						<tr>
+							<td>
+								<table width="80%" align="left">
+									<tr align="left">
+
+										<td><span><b><font size="4%">{{fieldValue.genrep_manual_label_poinfo}}</font>
+											</b> </span></td>
+
+									</tr>
+								</table>
+
+								<table width="90%" align="center" class="table table-bordered">
+									<tr>
+										<td width="60%">
+											<table style="width: 90%" align="center">
+
+												<tr>
+													<td align="left" width="20%"><b>{{fieldValue.genrep_manual_common_label_poNumber}}</b>
+													</td>
+
+
+													<td width="7%">&nbsp;</td>
+													<td align="left" width="20%"><b>{{fieldValue.genrep_poInfo_common_label_line}}</b>
+													</td>
+
+													<!-- <td width="7%">&nbsp;</td>
+													<td align="left" width="20%"><b>{{fieldValue.genrep_poInfo_common_label_ndc}}</b>
+													</td> -->
+
+													<td width="7%">&nbsp;</td>
+													<td align="left" width="20%"><b>{{fieldValue.genrep_poInfo_common_label_itemnumber}}</b>
+													</td>
+
+												</tr>
+												<tr>
+													<td><font color="#007dc6" width="20%">{{transactionRecord.poLineDetails.poNbr}}</font>
+													</td>
+
+													<td width="7%">&nbsp;</td>
+													<td><font color="#007dc6" width="20%">{{transactionRecord.poLineDetails.poLineNbr}}</font>
+													</td>
+
+													<!-- <td width="7%">&nbsp;</td>
+													<td><font color="#007dc6" width="20%">{{transactionRecord.ndcNbr}}</font>
+													</td> -->
+
+													<td width="7%">&nbsp;</td>
+													<td><font color="#007dc6" width="20%">{{transactionRecord.poLineDetails.itemNbr}}</font>
+													</td>
+
+												</tr>
+											</table>
+										</td>
+									</tr>
+								</table>
+
+
+
+								<table width="80%" align="left">
+									<tr align="left">
+										<td><span><b><font size="4%">{{fieldValue.genrep_poInfo_common_label_Shipment_item}}</font>
+											</b> </span></td>
+									</tr>
+								</table>
+
+								<table width="90%" align="center" class="table table-bordered">
+
+									<tr>
+										<td width="60%">
+
+											<table style="width: 90%" align="center">
+												<div ng-show="highlightMsg == 1"
+													style="color: red; font-size: 95%">{{fieldValue.genrep_shipmentdetails_errMsg_highlightError}}</div>
+
+												<tr>
+													<td align="left" width="20%"><b>{{fieldValue.genrep_poInfo_common_label_drugnumber}}</b>
+														<font color="#FF0000" size="4%">*</font> <input
+														type="text" class="form-control moz-placeholder"
+														maxlength="15" ng-model="transactionRecord.drugLotNbr"
+														required="">
+													</td>
+													<td width="7%">&nbsp;</td>
+													<td align="left" width="20%"><b>{{fieldValue.genrep_poInfo_common_label_Expirationdate}}</b>
+														<font color="#FF0000" size="4%">*</font> <input
+														type="date" class="form-control moz-placeholder" value=""
+														ng-model="transactionRecord.drugLotExpiryDate" required="">
+													</td>
+													<td width="7%">&nbsp;</td>
+													<td align="left" width="20%""><b>{{fieldValue.genrep_poInfo_common_label_quantity}}</b>
+														<font color="#FF0000" size="4%">*</font> <input
+														type="text" class="form-control moz-placeholder" value=""
+														ng-model="transactionRecord.itemShipQty"
+														id={{highlightQty}} required="">
+													</td>
+													<td width="7%">&nbsp;</td>
+
+												</tr>
+												<tr>
+													<td>&nbsp;</td>
+													<td>&nbsp;</td>
+													<td>&nbsp;</td>
+													<td>&nbsp;</td>
+
+												</tr>
+
+												<tr>
+													<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_unitofmeasurecodes}}</b>
+														<!-- <input type="text" class="form-control moz-placeholder" value="" ng-model="transactionRecord.containerSize" maxlength="50">
+														</td> --> <select class="form-control moz-placeholder"
+														ng-model="transactionRecord.qtyUOMCode">
+															<option value="1">Pound</option>
+															<option value="2">Gallon</option>
+													</select>
+													<td width="7%">&nbsp;</td>
+													<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_ndc}}</b>
+														<input type="text" class="form-control moz-placeholder"
+														value="" ng-model="transactionRecord.ndcNbr"
+														maxlength="50"></td>
+
+													<td width="7%">&nbsp;</td>
+													<td align="left" span="5" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_dosage}}</b>
+														<font color="#FF0000" size="4%">*</font> <input
+														type="text" class="form-control moz-placeholder" value=""
+														ng-model="transactionRecord.itemDesc" required="">
+													</td>
+												</tr>
+												<tr>
+													<td>&nbsp;</td>
+													<td>&nbsp;</td>
+													<td>&nbsp;</td>
+													<td>&nbsp;</td>
+												</tr>
+												<tr>
+												<tr>
+													<td align="left" colspan="5" width="20%"><b>{{fieldValue.genrep_poInfo_common_label_transactionhistory}}</b>
+														<input ng-repeat="field in transactionHistory" type="text"
+														class="form-control moz-placeholder" value=""
+														maxlength="255" ng-model="field.shpmtItemTxtStatement">
+														<button type="button" ng-show="showAddField(field)"
+															class="btn-secondary-mini"
+															ng-model="transactionRecord.itemShipProgression"
+															ng-click="addField2()">
+															<b>+</b>
+														</button></td>
+												</tr>
+												<tr>
+													<td>&nbsp;</td>
+													<td>&nbsp;</td>
+													<td>&nbsp;</td>
+													<td>&nbsp;</td>
+												</tr>
+
+											</table>
+											<table align="center">
+												<tr>
+													<td>
+														<button type="button" value="Save"
+															ng-click="onSaveItem(transactionRecord)"
+															ng-disabled="saveShipmentForm.$invalid"
+															class="btn btn-secondary">{{fieldValue.genrep_poInfo_common_btn_save}}</button>
+													</td>
+													<td align="right">
+														<button type="button" value="Close"
+															class="btn btn-secondary" onclick="toggleOverlay()">{{fieldValue.genrep_poInfo_common_btn_close}}</button>
+													</td>
+
+												</tr>
+											</table></td>
+									</tr>
+
+								</table></td>
+						</tr>
+					</table>
+				</form>
+			</div>
+			<div ng-switch-when="retrieve" align="center">
+				<table width=95%>
+					<tr>
+						<td>
+							<table width="80%" align="center">
+								<tr>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+								</tr>
+							</table>
+							<table width="80%" align="left">
+								<tr align="left">
+									<td><span><b><font size="4%">{{fieldValue.genrep_manual_label_poinfo}}</font>
+										</b> </span>
+									</td>
+								</tr>
+							</table>
+							<table width="90%" align="center" class="table table-bordered">
+								<tr>
+									<td width="60%">
+										<table style="width: 90%" align="center">
+
+											<tr>
+												<td align="left" width="25%"><b>{{fieldValue.genrep_manual_common_label_poNumber}}</b>
+												</td>
+
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_line}}</b>
+												</td>
+
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_ndc}}</b>
+												</td>
+
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_itemnumber}}</b>
+												</td>
+
+											</tr>
+
+											<tr>
+												<td><font color="#007dc6" width="25%">PO</font></td>
+
+												<td><font color="#007dc6" width="25%">Line</font></td>
+
+												<td><font color="#007dc6" width="25%">NDC</font></td>
+
+												<td><font color="#007dc6" width="25%">Item No</font></td>
+
+											</tr>
+										</table>
+									</td>
+								</tr>
+							</table>
+							<table width="80%" align="left">
+								<tr align="left">
+									<td><span><b><font size="4%">{{fieldValue.genrep_poInfo_common_label_transactioninformation}}</font>
+										</b> </span>
+									</td>
+								</tr>
+							</table>
+							<table width="90%" align="center" class="table table-bordered">
+								<tr>
+									<td width="60%">
+
+										<table style="width: 90%" align="center">
+
+											<tr>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+
+											</tr>
+											<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_drugnumber}}</b>
+											</td>
+
+											<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_skuid}}</b>
+											</td>
+
+											<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_quantity}}</b>
+											</td>
+
+											<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_dosage}}</b>
+											</td>
+
+											<tr>
+												<td><font color="#007dc6" size="2%">Drug Lot
+														Number</font></td>
+												<td><font color="#007dc6" size="2%">SKU ID</font></td>
+												<td><font color="#007dc6" size="2%">Quantity</font></td>
+												<td><font color="#007dc6" size="2%">Shipment
+														Handle Id</font>
+												</td>
+
+											</tr>
+
+											<tr>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+
+											</tr>
+											<tr>
+
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_shipmentdate}}</b>
+												</td>
+
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_containersize}}</b>
+												</td>
+
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_product_name}}</b>
+												</td>
+
+
+
+												<!-- <td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_strength}}</b></td> -->
+
+											</tr>
+
+
+											<tr>
+												<td><font color="#007dc6" size="2%">Receiver
+														Number</font></td>
+
+
+												<td><font color="#007dc6" size="2%">Oper Handle
+														ID</font></td>
+
+
+												<td><font color="#007dc6" size="2%">Data Feed
+														Handle ID</font></td>
+
+
+
+
+
+											</tr>
+
+
+											<tr>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+											</tr>
+
+											<tr>
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_manfacturerdate}}</b>
+												</td>
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_Expirationdate}}</b>
+												</td>
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_transactiondate}}</b>
+												</td>
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_numberofcontainers}}</b>
+												</td>
+											</tr>
+											<tr>
+												<td><font color="#007dc6" size="2%">mm/dd/yyyy</font></td>
+
+
+												<td><font color="#007dc6" size="2%">No. of
+														Containers</font></td>
+
+
+
+												<td><font color="#007dc6" size="2%">Container
+														Size</font></td>
+
+
+
+												<td><font color="#007dc6" size="2%">Container
+														Size</font></td>
+
+
+											</tr>
+
+											<tr>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+
+											</tr>
+											<tr>
+
+												<!-- <td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_operhandleid}}</b></td>
+												
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_datafeedhandleid}}</b></td> -->
+
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_receivernumber}}</b>
+												</td>
+
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_supplier_auth_number}}</b>
+												</td>
+
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_illgementitem}}</b>
+												</td>
+
+												<!-- <td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_containerhandleid}}</b></td> -->
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_istifalse}}</b>
+												</td>
+											</tr>
+											<tr>
+												<td><font color="#007dc6" size="2%">mm/dd/yyyy</font></td>
+
+												<td><font color="#007dc6" size="2%">mm/dd/yyyy</font></td>
+
+												<td><font color="#007dc6" size="2%">mm/dd/yyyy</font></td>
+
+												<!-- <td><font color="#007dc6" size="2%">Container Handle ID</font></td> -->
+												<td><font color="#007dc6" size="2%">No</font></td>
+											</tr>
+
+											<tr>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+
+											</tr>
+											<tr width="50%">
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_auth_person}}</b>
+												</td>
+
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_suplierverify}}</b>
+												</td>
+
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_prodvalid}}</b>
+												</td>
+
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_priordocreceived}}</b>
+												</td>
+
+											</tr>
+											<tr width="50%">
+												<td><font color="#007dc6" size="2%">Authorized
+														Person</font></td>
+												<td><font color="#007dc6" size="2%">Yes</font></td>
+												<td><font color="#007dc6" size="2%">Yes</font></td>
+												<td><font color="#007dc6" size="2%">Yes</font></td>
+											</tr>
+
+											<tr>
+											<tr>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+
+											</tr>
+											<tr width="50%">
+
+
+
+
+												<td align="left" width="25%"><b>{{fieldValue.genrep_poInfo_common_label_handlinginstruction}}</b>
+												</td>
+												<td align="left" width="25%" colspan="3"><b>{{fieldValue.genrep_poInfo_common_label_hastialter}}</b>
+												</td>
+
+
+											</tr>
+											<tr>
+
+
+												<td><font color="#007dc6" size="2%">Handling
+														Instructions</font></td>
+												<td><font color="#007dc6" size="2%">No</font></td>
+											</tr>
+											<tr>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+
+											</tr>
+											<tr>
+
+
+
+											</tr>
+											<tr>
+
+											</tr>
+
+											<tr>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+											</tr>
+											<tr>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+											</tr>
+
+											<tr align="center">
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+											</tr>
+
+										</table>
+										<table align="center">
+											<tr>
+												<td align="right">
+													<button type="button" value="Close"
+														class="btn btn-secondary" onclick="toggleOverlay()"
+														ng-click="closeTransactionInfo(2)">{{fieldValue.genrep_poInfo_common_btn_close}}</button>
+												</td>
+											</tr>
+										</table></td>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+
+			</div>
+		</div>
+</body>
+</html>

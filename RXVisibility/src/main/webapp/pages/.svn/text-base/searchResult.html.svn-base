@@ -1,0 +1,137 @@
+<div>
+	<table width="80%" align="center">
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<table width="80%" align="center">
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<table width="100%">
+		<tr>
+			<td>
+
+				<table width="90%" align="center">
+					<tr>
+						<td width="90%" class="table table-bordered" align="center">
+						<div>
+							<table style="width: 100%" align="center">
+								<tr>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									
+								</tr>
+								<tr align="center">
+									<td colspan="2" ng-show ="searchResultMsg"><b>{{fieldValue.genrep_select_instruction}}</b>
+									</td>
+									<td colspan="2" ng-hide ="searchResultMsg"><b>{{fieldValue.genrep_select_no_lines}}</b>
+									</td>
+									
+								</tr>
+								<tr>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									
+								</tr>
+
+							</table>
+							</div>
+						</td>
+					</tr>
+				</table></td>
+		</tr>
+	
+		<tr>
+			<td>
+				<table width="90%" align="center">
+					<tr>
+						<td width="90%" class="table table-bordered" align="center">
+
+							<div style="overflow-y: scroll; height: 460px;">
+								<table width=100% class="table table-bordered">
+
+									<thead style="text-align: center; background-color: #8dcdfa;">
+										<td width="10%"><b>{{fieldValue.genrep_PO_1}}</b>
+										</td>
+										<td width="10%"><b>{{fieldValue.genrep_trasnsaction_date}}</b>
+										</td>
+										<td width="10%"><b>{{fieldValue.genrep_NDC}}</b>
+										</td>
+										<td width="10%"><b>{{fieldValue.genrep_product_name_dosage_and_strength}}</b>
+										</td>
+										<td width="10%"><b>{{fieldValue.genrep_lot}}</b>
+										</td>
+										<td width="10%"><b>{{fieldValue.genrep_vendor_name}}</b>
+										</td>
+										<td width="10%"><b>{{fieldValue.genrep_vendor_number}}</b>
+										</td>
+									</thead>
+									<tbody style="text-align: center"
+										ng-repeat="lineItem in searchRecord.shipmentDetailList">
+
+										<td width="10%" ng-click="openShipment(lineItem.shipmentId,lineItem.shipmentItemDetail.drugLotNbr)"><a
+											href="">{{lineItem.poDetails.poNbr}}</a>
+										</td>
+										<td width="10%">{{lineItem.ownershipTransferDate1}}</td>
+										<td width="10%">{{lineItem.shipmentItemDetail.ndcNbr}}</td>
+										<td width="10%">{{lineItem.shipmentItemDetail.itemDesc}}</td>
+										<td width="10%">{{lineItem.shipmentItemDetail.drugLotNbr}}</td>
+										<td width="10%">{{lineItem.shipmentAddressDetailList[0].companyName}}</td>
+										<td width="10%">{{lineItem.poDetails.vndrNbr}}</td>
+										<!-- <td width="13%" ng-show="editLinkSwitch"><a id="details"
+												href="" contenteditable="false"
+												ng-click="onClickEntry(record,lineItem.poLineNbr,lineItem)">{{fieldValue.genrep_manual_creatTransaction_btn_entry}}</a>
+
+											</td> -->
+
+
+
+									</tbody>
+									
+
+								</table>
+							</div>
+							</td>
+							</tr>
+							<tr>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									
+							</tr>
+							<tr>
+								<table style="width: 100%" align="center">
+									<tr align="center">
+										<td width="30%">&nbsp;</td>
+										<td colspan="1"><input type="button"
+											ng-disabled="captureTransationForm.$invalid" value="{{fieldValue.genrep_back}}"
+											ng-click="backOption(1)" class="btn btn-secondary"></input> <!-- <div  ng-show="errorSwitch_PO == 1"  style="color:white;font-size: 80%">1</div></b>
+													<div  ng-show="errorSwitch_NDC == 1"  style="color:white;font-size: 80%">1</div></b> -->
+										<td>
+																			
+										<td colspan="2" width="30%">&nbsp;</td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+								</table>
+							</tr>
+				</table></td>
+		</tr>
+
+	</table>
+
+</div>

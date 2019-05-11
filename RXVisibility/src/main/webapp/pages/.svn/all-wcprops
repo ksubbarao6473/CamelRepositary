@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/repos/lda/!svn/ver/76874/Regional_GenRep/branches/PHASE_3/WMGenRep/WMGenRepWeb/src/main/webapp/pages
+END
+shipmentDetails.html
+K 25
+svn:wc:ra_dav:version-url
+V 126
+/svn/repos/lda/!svn/ver/76871/Regional_GenRep/branches/PHASE_3/WMGenRep/WMGenRepWeb/src/main/webapp/pages/shipmentDetails.html
+END
+mainPage.html
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/repos/lda/!svn/ver/76871/Regional_GenRep/branches/PHASE_3/WMGenRep/WMGenRepWeb/src/main/webapp/pages/mainPage.html
+END
+menuPage.html
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/repos/lda/!svn/ver/77188/Regional_GenRep/branches/PHASE_3/WMGenRep/WMGenRepWeb/src/main/webapp/pages/menuPage.html
+END
+searchResult.html
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/svn/repos/lda/!svn/ver/77568/Regional_GenRep/branches/PHASE_3/WMGenRep/WMGenRepWeb/src/main/webapp/pages/searchResult.html
+END
+loginPage.html
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svn/repos/lda/!svn/ver/76871/Regional_GenRep/branches/PHASE_3/WMGenRep/WMGenRepWeb/src/main/webapp/pages/loginPage.html
+END
+shipmentResult.html
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/svn/repos/lda/!svn/ver/76871/Regional_GenRep/branches/PHASE_3/WMGenRep/WMGenRepWeb/src/main/webapp/pages/shipmentResult.html
+END
+transactionHistory.html
+K 25
+svn:wc:ra_dav:version-url
+V 129
+/svn/repos/lda/!svn/ver/76871/Regional_GenRep/branches/PHASE_3/WMGenRep/WMGenRepWeb/src/main/webapp/pages/transactionHistory.html
+END
+captureTransaction.html
+K 25
+svn:wc:ra_dav:version-url
+V 129
+/svn/repos/lda/!svn/ver/77188/Regional_GenRep/branches/PHASE_3/WMGenRep/WMGenRepWeb/src/main/webapp/pages/captureTransaction.html
+END
+transactionStatement.html
+K 25
+svn:wc:ra_dav:version-url
+V 131
+/svn/repos/lda/!svn/ver/77077/Regional_GenRep/branches/PHASE_3/WMGenRep/WMGenRepWeb/src/main/webapp/pages/transactionStatement.html
+END
+retrieveTransaction.html
+K 25
+svn:wc:ra_dav:version-url
+V 130
+/svn/repos/lda/!svn/ver/76871/Regional_GenRep/branches/PHASE_3/WMGenRep/WMGenRepWeb/src/main/webapp/pages/retrieveTransaction.html
+END

@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/repos/lda/!svn/ver/76871/Regional_GenRep/branches/PHASE_3/WMGenRep/WMGenRepWeb/src/main/webapp/WEB-INF
+END
+mvc-dispatcher-servlet.xml
+K 25
+svn:wc:ra_dav:version-url
+V 134
+/svn/repos/lda/!svn/ver/76871/Regional_GenRep/branches/PHASE_3/WMGenRep/WMGenRepWeb/src/main/webapp/WEB-INF/mvc-dispatcher-servlet.xml
+END
+web.xml
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/repos/lda/!svn/ver/77362/Regional_GenRep/branches/PHASE_3/WMGenRep/WMGenRepWeb/src/main/webapp/WEB-INF/web.xml
+END

@@ -1,0 +1,162 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.walmart.logistics.rxVisibilty</groupId>
+  <artifactId>RXVisibility</artifactId>
+  <version>${version1}</version>
+  
+  <name>RX Visibility</name>
+  <description>RX Visibility application as a WAR</description>
+  <packaging>war</packaging>
+  
+  <properties>
+  		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<servlet.version>2.5</servlet.version>
+	</properties>
+	
+	<distributionManagement>
+		<repository>
+			<id>internal-repository</id>
+			<name>Walmart Releases</name>
+			<url>http://repo.wal-mart.com/content/repositories/walmart</url>
+		</repository>
+		<snapshotRepository>
+			<id>internal-repository</id>
+			<name>Walmart Snapshots</name>
+			<url>http://repo.wal-mart.com/content/repositories/snapshots</url>
+			<uniqueVersion>false</uniqueVersion>
+		</snapshotRepository>
+	</distributionManagement>
+	
+		<dependencies>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>${servlet.version}</version>
+		</dependency>
+		</dependencies>
+		
+		<repositories>
+		<repository>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+			<id>internal-repository</id>
+			<name>Walmart Releases</name>
+			<url>http://repo.wal-mart.com/content/repositories/walmart</url>
+			<layout>default</layout>
+		</repository>
+		<repository>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</snapshots>
+			<id>internal-snapshots</id>
+			<name>Walmart Snapshots</name>
+			<url>http://repo.wal-mart.com/content/repositories/snapshots</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+	
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>2.3</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.5</version>
+					<configuration>
+						<skipTests>true</skipTests>
+						<forkMode>pertest</forkMode>
+						<testFailureIgnore>false</testFailureIgnore>
+						<systemPropertyVariables>
+							<net.sourceforge.cobertura.datafile>target/cobertura/cobertura.ser</net.sourceforge.cobertura.datafile>
+						</systemPropertyVariables>
+						<!-- for JDK6 Support -->
+						<argLine>-Dsun.lang.ClassLoader.allowArraySyntax=true</argLine>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>cobertura-maven-plugin</artifactId>
+					<version>2.3</version>
+					<configuration>
+						<check>
+							<haltOnFailure>false</haltOnFailure>
+							<regexes>
+								<regex>
+									<pattern>com.*</pattern>
+									<branchRate>80</branchRate>
+									<lineRate>80</lineRate>
+								</regex>
+							</regexes>
+						</check>
+						<instrumentation>
+							<includes>
+								<include>com/**/*.class</include>
+							</includes>
+						</instrumentation>
+						<formats>
+							<format>html</format>
+							<format>xml</format>
+						</formats>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>sonar-maven-plugin</artifactId>
+					<version>2.0</version>
+					
+				</plugin>
+
+				<!-- END Sonar configuration -->
+
+			</plugins>
+		</pluginManagement>
+	</build>
+	
+	<profiles>
+		<profile>
+			<id>sonar</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<sonar.host.url>
+					http://sonar.wal-mart.com
+				</sonar.host.url>
+				<!-- <sonar.jdbc.url>jdbc:jtds:sqlserver://sonardb:14481;databaseName=sonar;SelectMethod=Cursor</sonar.jdbc.url>
+				<sonar.jdbc.driver>net.sourceforge.jtds.jdbc.Driver</sonar.jdbc.driver>
+				<sonar.scm.url>scm:svn:https://svn01.wal-mart.com/svn/repos/manhattan_esb/branches/1.1.0</sonar.scm.url> -->
+				
+			</properties>
+		</profile>
+		<profile>
+			<id>dev</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<version1>0.0.1-SNAPSHOT</version1>
+			</properties>
+		</profile>
+		<profile>
+			<id>prod</id>
+			<properties>
+				<version1>1.0.0</version1>
+			</properties>
+		</profile>
+	</profiles>	
+		
+		
+</project>

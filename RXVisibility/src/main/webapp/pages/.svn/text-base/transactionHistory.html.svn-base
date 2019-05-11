@@ -1,0 +1,556 @@
+<div>
+	<!-- Start Overlay -->
+	<div id="overlay"></div>
+	<!-- End Overlay -->
+
+	<!-- Start Special Centered Box -->
+	<div id="specialBox">
+
+		<div role="navigation"
+			style="color: white; background-color: #003896; border-radius: 15px 15px 0px 0px;">Confirmation
+			message!</div>
+		<table align="center">
+			<p>{{fieldValue.genrep_confirmation_box}}</p>
+			<tr>
+
+				<td>
+					<button type="button" class="btn btn-secondary" ng-click="close()">{{fieldValue.genrep_ok}}</button>
+				</td>
+				<td align="right">
+					<button type="button" value="Close" class="btn btn-secondary"
+						onclick="toggleOverlay()" autofocus="autofocus">{{fieldValue.genrep_cancel}}</button>
+				</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+		</table>
+
+	</div>
+	<!-- Start Special Centered Box -->
+	<!-- Start Normal Page Content -->
+	<div id="wrapper">
+		<div class="navbar navbar-default" role="navigation"
+			style="font: white; border: 2px" ng-controller="genRepPageController">
+			<!-- Collect the nav links, forms, and other content for toggling -->
+
+			<div class="collapse navbar-collapse navbar-ex1-collapse"
+				ng-init="tab=transactionPage" align="left"
+				style="position: fixed; background-color: #003896; width: 100%;">
+				<table width=100%>
+					<td width="20%">
+						<table>
+							<thead style="text-align: center;">
+
+								<td width="10%"><img src="images/wmt-brand-logo.png"
+									width="70%" height="90%" /></td>
+							</thead>
+						</table>
+					</td>
+					<td width="80%">
+						<table>
+							<thead style="text-align: center;">
+								<td width="15%" style="size: 90%"><a><font
+										color="#FFc220" size="3"><b>
+												{{fieldValue.genrep_rxdscsa_repository}} 
+									</font></b> </a>
+								</td>
+								<td width="30%"><a><font color="white"><b>{{fieldValue.genrep_walmart_location}}
+												# </b> {{locationNumber}}</font> </a>
+								</td>
+								<td width="10%" align="center">
+									<table>
+										<tr align="center">
+											<td><font color="white"><b>{{fieldValue.genrep_welcome}}</b>
+											</font>
+											</td>
+										</tr>
+										<tr align="center">
+											<td><font color="#FFc220" size="3"><b>{{loginUser}}</b>
+											</font>
+											</td>
+										</tr>
+									</table></td>
+							</thead>
+						</table>
+					</td>
+				</table>
+			</div>
+		</div>
+
+		<div style="background-color: #FFFFFF"
+			ng-controller="genRepHistoryController">
+
+			<table width="80%" align="center">
+				<tr>
+					<td>
+						<div align="center" autofocus="true" class="alert alert-danger"
+							ng-show="errorDescriptionList.length > 0">
+							<table width="100%">
+								<tr align="left" ng-repeat="errorItem in errorDescriptionList">
+									<td><span><b><font color="#FF0000" size="2%">{{errorItem}}</font>
+										</b> </span></td>
+								</tr>
+							</table>
+						</div>
+						<div class="alert alert-success" ng-show="plainMessage != ''" align="center" autofocus="true">
+										<table width="100%">
+											<tr align="center">
+												<td><span><b><font color="green" size="4%">{{plainMessage}}</font>
+													</b> </span>
+												</td>
+											</tr>
+										</table>
+									</div>
+						</td>
+				</tr>
+			</table>
+			<table width="80%" align="center">
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+			</table>
+			<table width="80%" align="center">
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+			</table>
+			<table width="70%">
+				<tr>
+					<td>
+						<div
+							ng-repeat="item in record.shipmentDetails.shipmentItemDetails"
+							ng-if="item.isItemChecked == '1'"
+							ng-init="validateHistory(item,0)">
+							<div ng-repeat="history in item.shipmentHistoryDetails"
+								ng-init="validateHistory(item,history.rowNum)"
+								ng-if="history.rowNum == newRowNum"
+								ng-show="isShowEntryDiv == 'false'">
+								<table style="width: 90%" align="center">
+
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_PO_2}}</b></td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											class="form-control moz-placeholder" value=""
+											readonly="readonly" ng-model="history.poNbr"></td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_item_number}}</b>
+										</td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											class="form-control moz-placeholder" value=""
+											readonly="readonly" ng-model="history.itemNbr"></td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_company_name}}</b><font
+											color="#FF0000" size="4%">*</font>
+										</td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											class="form-control moz-placeholder" value=""
+											ng-model="history.companyName"></td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_street_address}}</b><font
+											color="#FF0000" size="4%">*</font>
+										</td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											class="form-control moz-placeholder" value=""
+											ng-model="history.addressLine"></td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_city}}</b><font
+											color="#FF0000" size="4%">*</font>
+										</td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											class="form-control moz-placeholder" value=""
+											ng-model="history.cityName"></td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_state}}</b><font
+											color="#FF0000" size="4%">*</font>
+										</td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											maxlength="2" class="form-control moz-placeholder" value=""
+											ng-model="history.stateName"></td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_zipcode}}</b><font
+											color="#FF0000" size="4%">*</font>
+										</td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											class="form-control moz-placeholder" value=""
+											ng-model="history.postalCode"></td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_number_of_containers}}</b><font
+											color="#FF0000" size="4%">*</font></td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											maxlength="10" class="form-control moz-placeholder" value=""
+											ng-model="history.containerNumber"></td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+
+
+										<td align="left" width="100%" colspan="3">
+											<table>
+												<tr>
+													<td class="form-control moz-placeholder" align="left"
+														width="25%"><b>{{fieldValue.genrep_trasnsaction_date}}</b><font
+														color="#FF0000" size="4%">*</font></td>
+													<td align="left" width="25%"><input type="date"
+														class="form-control moz-placeholder" value=""
+														ng-model="history.transactionDate"></td>
+
+													<td class="form-control moz-placeholder" align="left"
+														width="25%"><b>{{fieldValue.genrep_shipment_date}}</b><font
+														color="#FF0000" size="4%">*</font></td>
+													<td align="left" width="25%"><input type="date"
+														class="form-control moz-placeholder" value=""
+														ng-model="history.shipmentDate"></td>
+
+												</tr>
+											</table>
+										</td>
+
+
+									</tr>
+
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+								</table>
+							</div>
+
+							<div ng-show="isShowEntryDiv == 'true'">
+								<table style="width: 90%" align="center">
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_PO_2}}</b></td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											class="form-control moz-placeholder" value=""
+											readonly="readonly"
+											ng-model="record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail.poNbr">
+										</td>
+
+
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_item_number}}</b>
+										</td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											class="form-control moz-placeholder" value=""
+											readonly="readonly"
+											ng-model="record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail.itemNbr">
+										</td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_company_name}}</b><font
+											color="#FF0000" size="4%">*</font>
+										</td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											class="form-control moz-placeholder" value=""
+											ng-model="record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail.companyName">
+										</td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_street_address}}</b><font
+											color="#FF0000" size="4%">*</font>
+										</td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											class="form-control moz-placeholder" value=""
+											ng-model="record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail.addressLine">
+										</td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_city}}</b><font
+											color="#FF0000" size="4%">*</font>
+										</td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											class="form-control moz-placeholder" value=""
+											ng-model="record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail.cityName">
+										</td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_state}}</b><font
+											color="#FF0000" size="4%">*</font>
+										</td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											class="form-control moz-placeholder" value="" maxlength="2"
+											ng-model="record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail.stateName">
+										</td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_zipcode}}</b><font
+											color="#FF0000" size="4%">*</font>
+										</td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											class="form-control moz-placeholder" value=""
+											ng-model="record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail.postalCode">
+										</td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+										<td class="form-control moz-placeholder" align="left"
+											width="30%"><b>{{fieldValue.genrep_number_of_containers}}</b><font
+											color="#FF0000" size="4%">*</font></td>
+										<td width="2%">&nbsp;</td>
+										<td align="left" width="68%"><input type="text"
+											maxlength="10" class="form-control moz-placeholder" value=""
+											ng-model="record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail.containerNumber">
+										</td>
+									</tr>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+									<tr>
+
+
+										<td align="left" width="100%" colspan="3">
+											<table>
+												<tr>
+													<td class="form-control moz-placeholder" align="left"
+														width="25%"><b>{{fieldValue.genrep_trasnsaction_date}}</b><font
+														color="#FF0000" size="4%">*</font></td>
+													<td align="left" width="25%"><input type="date"
+														class="form-control moz-placeholder" value=""
+														ng-model="record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail.transactionDate">
+													</td>
+
+													<td class="form-control moz-placeholder" align="left"
+														width="25%"><b>{{fieldValue.genrep_shipment_date}}</b><font
+														color="#FF0000" size="4%">*</font></td>
+													<td align="left" width="25%"><input type="date"
+														class="form-control moz-placeholder" value=""
+														ng-model="record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail.shipmentDate">
+													</td>
+
+												</tr>
+											</table>
+										</td>
+
+
+									</tr>
+
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+								</table>
+							</div>
+
+							<table style="width: 90%" align="center">
+								<tr align="center">
+									<td width="30%">&nbsp;</td>
+									<td colspan="1"><input type="button"
+										value="{{fieldValue.genrep_save}}"
+										ng-click="save(record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail,item)"
+										class="btn btn-secondary"></input> <!-- <div  ng-show="errorSwitch_PO == 1"  style="color:white;font-size: 80%">1</div></b>
+												<div  ng-show="errorSwitch_NDC == 1"  style="color:white;font-size: 80%">1</div></b> -->
+									<td>
+									<td colspan="1"><input type="button"
+										ng-disabled="captureTransationForm.$invalid"
+										value="{{fieldValue.genrep_next}}"
+										ng-click="nextShipmentHistory(item)" class="btn btn-secondary"></input>
+										<!-- <div  ng-show="errorSwitch_PO == 1"  style="color:white;font-size: 80%">1</div></b>
+												<div  ng-show="errorSwitch_NDC == 1"  style="color:white;font-size: 80%">1</div></b> -->
+									<td>
+									<td colspan="1"><input type="button"
+										value="{{fieldValue.genrep_previous}}"
+										ng-click="previousShipmentHistory()"
+										ng-class="{'disabled':  hidePrevious == 'true'}"
+										class="btn btn-secondary"></input> <!-- <div  ng-show="errorSwitch_PO == 1"  style="color:white;font-size: 80%">1</div></b>
+												<div  ng-show="errorSwitch_NDC == 1"  style="color:white;font-size: 80%">1</div></b> -->
+									<td>
+									<td colspan="1"><input type="button"
+										value="{{fieldValue.genrep_clear}}" ng-click="clear(history)"
+										class="btn btn-secondary"></input>
+									<td>
+									<td colspan="1"><input type="button"
+										ng-disabled="captureTransationForm.$invalid"
+										value="{{fieldValue.genrep_close}}" ng-click="closeButton()"
+										class="btn btn-secondary"></input> <!-- <div  ng-show="errorSwitch_PO == 1"  style="color:white;font-size: 80%">1</div></b>
+												<div  ng-show="errorSwitch_NDC == 1"  style="color:white;font-size: 80%">1</div></b> -->
+									<td>
+									<td width="30%">&nbsp;</td>
+								</tr>
+								<tr>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+								</tr>
+							</table>
+						</div>
+					</td>
+			</table>
+
+
+		</div>
+	</div>
+</div>

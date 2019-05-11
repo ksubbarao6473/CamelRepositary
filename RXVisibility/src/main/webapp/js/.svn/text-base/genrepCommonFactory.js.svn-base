@@ -1,0 +1,170 @@
+//Factory : 1
+genRepApplication.factory('LoginService', function($http, LoadMainTransaction,
+		$window) {
+	var info = [];
+	var loginUser = "USER_01";
+	return {
+		setPageInfo : function(pageInfo) {
+			info = pageInfo;
+			return;
+		},
+		getPageInfo : function() {
+			return info;
+		},
+		setLoginUser : function(userName,countryCode) {
+			$window.localStorage
+					&& $window.localStorage.setItem('mystorage', userName);
+			$window.localStorage
+			&& $window.localStorage.setItem('countryCode', countryCode);
+
+			loginUser = userName;
+			return;
+		},
+		getLoginUser : function() {
+			return $window.localStorage
+					&& $window.localStorage.getItem('mystorage');
+			// return loginUser;
+		},
+		getCountryCode : function() {
+			return $window.localStorage
+					&& $window.localStorage.getItem('countryCode');
+			// return loginUser;
+		},
+		
+		validateCall : function(url, myJSONObject, fileName) {
+
+			return $http.post(url, myJSONObject);
+		}
+	};
+});
+
+genRepApplication.factory('LoadMainTransaction', function($http, $window) {
+	var transactionInformation = {};
+	var createInformation = [];
+	var pageNavigator = [];
+	var pageTabNo = "1";
+	var po_Hide = "SHOW";
+	var shipment = "";
+
+	return {
+
+		getCreateTransaction : function(transactionInfo, poHide) {
+			transactionInformation = transactionInfo;
+			po_Hide = poHide;
+			return;
+		},
+		setTransaction : function() {
+			return transactionInformation;
+		},
+		fetchPoLine : function(url, purchaseOrderRequest) {
+			return $http({
+				url : url,
+				method : "GET",
+				params : {
+					'fetchRequest' : purchaseOrderRequest
+				},
+				headers : {
+					'Content-Type' : 'application/json'
+				}
+			});
+		},
+		searchPoLine : function(url, searchCriterias) {
+			return $http({
+				url : url,
+				method : "GET",
+				params : {
+					'searchCriterias' : searchCriterias
+				},
+				headers : {
+					'Content-Type' : 'application/json'
+				}
+			});
+		},
+		setShipmentAsString : function(shipmentJsonS) {
+			shipment = shipmentJsonS;
+			alert(shipment)
+			return;
+		},
+		getShipmentAsString : function() {
+
+			return shipment;
+		},
+		setPageNavigator : function() {
+			return pageNavigator;
+		},
+		getPoHide : function() {
+			return po_Hide;
+		},
+		setPageTab : function(newPageTabNo) {
+			pageTabNo = newPageTabNo;
+			return;
+		},
+		getPageTab : function() {
+			return pageTabNo;
+		}
+
+	};
+});
+genRepApplication.factory('LoadPreservedAttributes', function($http) {
+	var poNumber = "";
+	var vendorNumber = "";
+	var shipmentId = "0";
+	var buyerShpmtAddressId = "0";
+	var sellerShpmtAddressId = "0";
+	var shipment = [];
+	var refreshFlag = "0";
+	return {
+		setPoNumber : function(newPoNumber) {
+
+			poNumber = newPoNumber;
+
+		},
+		getPoNumber : function() {
+
+			return poNumber;
+		},
+		setVendorNumber : function(newVendorNumber) {
+			vendorNumber = newVendorNumber;
+		},
+		getVendorNumber : function() {
+			return vendorNumber;
+		},
+		setShipentId : function(newShipmentId) {
+
+			shipmentId = newShipmentId;
+
+		},
+		getShipmentId : function() {
+
+			return shipmentId;
+		},
+		setBuyerShpmtAddressId : function(newBuyerShpmtAddressId) {
+
+			buyerShpmtAddressId = newBuyerShpmtAddressId;
+
+		},
+		getBuyerShpmtAddressId : function() {
+
+			return buyerShpmtAddressId;
+		},
+		setSellerShpmtAddressId : function(newSellerShpmtAddressId) {
+
+			sellerShpmtAddressId = newSellerShpmtAddressId;
+
+		},
+		getSellerShpmtAddressId : function() {
+
+			return sellerShpmtAddressId;
+		},
+		setShipment : function(newShipment) {
+			shipment = newShipment;
+		},
+		getShipment : function() {
+			return shipment;
+		},getRefreshFlag : function(){
+			return refreshFlag;
+		},setRefreshFlag : function(flag){
+			refreshFlag = flag;
+		}
+	};
+});

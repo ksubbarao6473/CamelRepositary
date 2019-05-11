@@ -1,0 +1,111 @@
+<div ng-controller="genRepPageController">
+	<div class="navbar navbar-default" role="navigation"
+		style="font: white; border: 2px;">
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse navbar-ex1-collapse"
+			ng-init="tab=transactionPage" align="left"
+			style="position:fixed; background-color: #003896; width: 100%;z-index: 1">
+			<table width=100%>
+				<td width="20%">
+					<ul class="nav navbar-nav">
+						<li><img src="images/wmt-brand-logo.png" width="90%" style=""
+							height="200%" /></li>
+					</ul></td>
+				<td width="80%">
+					<table>
+						<thead style="text-align: center;">
+							<td width="15%" style="size: 90%"><font color="#FFc220"
+								size="3"><b> {{fieldValue.genrep_rxdscsa_repository}}
+								
+							</font></b></td>
+							<td width="30%"><font color="white"><b>{{fieldValue.genrep_walmart_location}}
+										# </b> {{locationNumber}}</font></td>
+							<td width="30%">&nbsp;</td>
+
+							<td width="10%" align="center">
+								<table>
+									<tr align="center">
+										<td><font color="white"><b>{{fieldValue.genrep_welcome}}</b>
+										</font>
+										</td>
+									</tr>
+									<tr align="center">
+										<td><font color="#FFc220" size="3"><b>{{loginUser}}</b>
+										</font>
+										</td>
+									</tr>
+								</table></td>
+						</thead>
+					</table></td>
+			</table>
+		</div>
+	</div>
+	<div ng-hide="showMenu">
+		<div class="alert alert-danger" align="left" autofocus="true">
+										<table width="100%">
+											<tr align="left">
+												<td><span><b><font color="#FF0000" size="2%">Unauthorised Login.Please Login with valid User Credentials</font>
+													</b> </span>
+												</td>
+											</tr>
+										</table>
+		</div>
+	</div>
+	<div ng-show="showMenu">
+		<ul class="nav nav-tabs">
+			<li ng-click="changeTab(1)"
+				ng-class="{'active': transactionPage == 1}"><a data-toggle="tab" >{{fieldValue.genrep_manual_entry}}</a>
+			</li>
+			<li ng-click="changeTab(2)"
+				ng-class="{'active': transactionPage == 2}"><a data-toggle="tab">{{fieldValue.genrep_search}}</a>
+			</li>
+			<li ng-click="changeTab(3)"
+				ng-class="{'active': transactionPage == 3}"><a data-toggle="tab">{{fieldValue.genrep_transaction_statement}}</a>
+			</li>
+		</ul>
+
+		<div class="tab-content">
+			<div ng-show="transactionPage == 1" class="tab-pane fade in active">
+				<div ng-include="manualInput"></div>
+			</div>
+			<div ng-show="transactionPage == 2" class="tab-pane fade in active">
+				<div ng-include="SearchDetails"></div>
+			</div>
+			<div ng-show="transactionPage == 3" class="tab-pane fade in active">
+				<div ng-include="transactionStatementDetails"></div>
+			</div>
+			
+		</div>
+	</div>
+
+<!-- 	<div style="width: 30%" align="left">
+		<ul class="nav nav-tabs nav-justified">
+			<li ng-click="changeTab(1)"
+				ng-class="{'active': transactionPage == 1}"><a>{{fieldValue.genrep_manual_entry}}</a>
+			</li>
+			<li ng-click="changeTab(2)"
+				ng-class="{'active': transactionPage == 2}"><a>{{fieldValue.genrep_search}}</a>
+			</li>
+			<li ng-click="changeTab(2)" ng-class="{'disabled':  true}"><a>{{fieldValue.genrep_administrator}}</a>
+			</li>
+
+		</ul>
+	</div>
+	<div>
+
+		/.navbar-collapse
+		<div ng-show="transactionPage == 1">
+			<div ng-include="manualInput"></div>
+		</div>
+		<div ng-show="transactionPage == 2">
+			<div ng-include="SearchDetails"></div>
+		</div>
+	</div> -->
+	<div id="overlay"></div>
+	<div id="specialBox"
+		style="position: fixed; height: 7%; left: 35%; top: 25%;"
+		align="center">
+		<div ng-show="dimScreen == 1" style="color: red; font-size: 150%"
+			align="center">{{userMessage}}{{waitScreenMessage}}</div>
+	</div>
+</div>

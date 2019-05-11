@@ -1,0 +1,1793 @@
+var genRepApplication = angular.module('genRepApplication', [ 'ngRoute','ngTable' ]);
+/* Configuration : 1 */
+genRepApplication.config([
+		'$locationProvider',
+		'$routeProvider',
+		function($locationProvider, $routeProvider, $routeScope) {
+			$locationProvider.html5Mode(false);
+			$routeProvider.when('/', {
+				templateUrl : 'pages/menuPage.html',
+				controller : 'genRepPageController',
+				controllerAs : 'genRepPageController'
+			});
+			$routeProvider.when('/menu/ManualEntryOld', {
+				templateUrl : 'pages/menuPage.html',
+				controller : 'genRepPageController',
+				controllerAs : 'genRepPageController'
+			});
+			$routeProvider.when('/menu/Search', {
+				templateUrl : 'pages/retrieveTransaction.html',
+				controller : 'genRepPageController',
+				controllerAs : 'genRepPageController'
+			});
+			$routeProvider.when('/menu/Search1', {
+				redirectTo : '/menu/Search'
+			});
+			$routeProvider.when('/menu/transactionHistory', {
+				templateUrl : 'pages/transactionHistory.html',
+				controller : 'genRepHistoryController'
+			});
+			$routeProvider.when('/logout', {
+				templateUrl : 'http://wireintegration.wal-mart.com/portal/include/js/PortalRedirection.html',
+				controller : 'genRepHistoryController'
+			});
+			
+
+		} ]);
+/* Controller : 1 */
+
+genRepApplication
+.controller(
+		'genRepHistoryController',['$scope','$http','$location','$timeout','$window','ngTableParams','LoginService','LoadMainTransaction','LoadPreservedAttributes',
+				function($scope, $http, $location,$timeout,$window, ngTableParams,
+						LoginService, LoadMainTransaction,LoadPreservedAttributes) {
+			
+				
+			$http.get('properties/genrepcommon.properties')
+			.success(function(response) {
+				$scope.fieldValue = response;
+			});
+			$scope.parentWindow = window.opener.$windowScope;
+			$scope.record = $scope.parentWindow.record;
+			$scope.currentRowNum = 0;
+			$scope.newRowNum = 0;
+			$scope.selectedShipmentItem = [];
+			var itemNUmber = "";
+			$scope.plainMessage = "";
+			angular.forEach($scope.record.shipmentDetails.shipmentItemDetails,function(shipmentItemDetail){
+				if(shipmentItemDetail.isItemChecked == '1'){
+					itemNUmber = shipmentItemDetail.itemNbr;
+					$scope.selectedShipmentItem = shipmentItemDetail;
+					
+				}
+				});
+			$scope.emptyHistory = {
+					rowNum: '',
+					stateName:'',
+					poNbr:$scope.record.shipmentDetails.poDetails.poNbr,
+					cityName:'',
+					postalCode:'',
+					itemNbr:itemNUmber,
+					shpmtAddressCode:'',
+					companyName:'',
+					addressLine:'',
+					languageCode:'',
+					containerNumber:''
+			};
+			$scope.record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail = angular.copy($scope.emptyHistory);
+			$scope.errorDescriptionList = [];
+			
+			$scope.save = function(shipmentHistoryDetail,item) {
+				$scope.plainMessage = "";
+				$scope.errorDescriptionList = [];
+				document.body.scrollTop = 0;
+				if(!angular.equals(shipmentHistoryDetail,$scope.emptyHistory)){
+					if($scope.mandatoryCurrentHistoryValidation()){
+						angular.forEach($scope.record.shipmentDetails.shipmentItemDetails,function(shipmentItemDetail){
+							if(shipmentItemDetail.isItemChecked == '1' && !angular.equals(shipmentHistoryDetail,$scope.emptyHistory)){
+								shipmentHistoryDetail.rowNum = item.shipmentHistoryDetails.length;
+									if($scope.isShowEntryDiv == "true"){
+									$scope.newRowNum = item.shipmentHistoryDetails.length;
+									shipmentItemDetail.shipmentHistoryDetails.push(angular.copy(shipmentHistoryDetail));
+									$scope.record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail = angular.copy($scope.emptyHistory);
+									//alert("tdert "+JSON.stringify(shipmentHistoryDetail));
+									}
+								$scope.validateHistory(shipmentItemDetail,shipmentHistoryDetail.rowNum);
+								
+							}
+						});
+						if($scope.errorDescriptionList.length == 0){
+							$scope.plainMessage = "Saved successfully!";
+						}	
+					}
+					
+					
+				}else{
+					
+					if($scope.isShowEntryDiv == "true"){
+					$scope.mandatoryCurrentHistoryValidation();
+					}else{
+					$scope.errorDescriptionList = [];
+					$scope.mandatoryListHistoryValidation();
+					}
+					
+					if($scope.errorDescriptionList.length == 0){
+						$scope.plainMessage = "Saved successfully!";
+					}
+				}
+				
+			};
+			$scope.logout = function() {
+				LoadPreservedAttributes.setRefreshFlag("0");
+				};
+			$scope.validateHistory = function(item,rowNum) {
+				
+				//alert("Size = "+item.shipmentHistoryDetails.length);
+				//alert("$scope.newRowNum = "+rowNum);
+				
+				$scope.currentRowNum = rowNum;				
+				if(item.shipmentHistoryDetails.length == 0){
+					$scope.isShowEntryDiv = "true";
+				}else{
+					//alert("false")
+					$scope.isShowEntryDiv = "false";
+				}
+				if(rowNum == 0){
+					$scope.hidePrevious = 'true';
+				}else{
+					$scope.hidePrevious = 'false';
+				}
+				$scope.mandatoryListHistoryValidation();
+			};
+			
+			
+			
+			$scope.mandatoryCurrentHistoryValidation = function() {
+				
+				$scope.errorDescriptionList = [];
+				var returnValue = true;
+				var listResult = true;
+					/*Checking ShipmentDate empty*/
+					
+					returnValue = $scope.commonValidationForListAndObject($scope.record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail);
+					
+					listResult = $scope.mandatoryListHistoryValidation();
+					if(returnValue == true){
+						returnValue = listResult;
+					}
+				return returnValue;
+			};
+			$scope.mandatoryListHistoryValidation = function() {
+				//alert("")
+				
+				var returnValue = true;
+			
+			
+					
+					angular.forEach($scope.selectedShipmentItem.shipmentHistoryDetails,function(shipmentHistoryDetail){
+						returnValue = $scope.commonValidationForListAndObject(shipmentHistoryDetail);
+						
+					});
+				
+			return returnValue;
+			};
+			
+			$scope.commonValidationForListAndObject = function(shipmentHistoryDetail) {
+				//alert("")
+				var returnValue = true;
+				//alert("came")
+				if(shipmentHistoryDetail.companyName ==  null
+						|| shipmentHistoryDetail.companyName == ""){
+					$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_history_CompanyName_error));
+					returnValue = false;
+				}
+				if(shipmentHistoryDetail.addressLine ==  null
+						|| shipmentHistoryDetail.addressLine == ""){
+					$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_history_StreetAddress_error));
+					returnValue = false;
+				}
+				if(shipmentHistoryDetail.cityName ==  null
+						|| shipmentHistoryDetail.cityName == ""){
+					$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_history_City_error));
+					returnValue = false;
+				}
+				if(shipmentHistoryDetail.stateName ==  null
+						|| shipmentHistoryDetail.stateName == ""){
+					$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_history_State_error));
+					returnValue = false;
+				}else{
+					if(!$scope.validateAlphabetic(shipmentHistoryDetail.stateName)){
+						$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_state_alphabetic_error));
+						returnValue = false;
+					}
+				}
+				
+				
+				if(shipmentHistoryDetail.postalCode ==  null
+						|| shipmentHistoryDetail.postalCode == ""){
+					$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_history_ZipCode_error));
+					returnValue = false;
+				}
+				if(shipmentHistoryDetail.containerNumber ==  null
+						|| shipmentHistoryDetail.containerNumber == ""){
+					$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_history_Container_error));
+					returnValue = false;
+				}else if(!$scope.validateNumeric(shipmentHistoryDetail.containerNumber)){
+					$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_numeric_history_Container_error));
+					returnValue = false;
+				}else 
+					if(parseInt(shipmentHistoryDetail.containerNumber) <=0){
+						if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_history_Container_error) == -1){
+							$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_history_Container_error));
+						}
+						returnValue = false;
+					
+				}else{
+				
+					if(parseInt(shipmentHistoryDetail.containerNumber) > parseInt($scope.fieldValue.genrep_max_int_value)){
+						$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_limit_history_Container_error));
+						returnValue = false;
+				}
+				}
+				if(shipmentHistoryDetail.transactionDate ==  null
+						|| shipmentHistoryDetail.transactionDate == ""){
+					$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_history_transactionDate_error));
+					returnValue = false;
+				}else{
+					var diffDays = 1000* 60 * 60* 24;
+					var currentDate = new Date();
+					var transactionDate = new Date(shipmentHistoryDetail.transactionDate);
+					if((transactionDate.getTime() - currentDate.getTime())/diffDays > 7){
+						if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_history_future_transactionDate_error) == -1){
+							$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_history_future_transactionDate_error));
+						}
+						returnValue = false;
+					}
+				}
+				if(shipmentHistoryDetail.shipmentDate ==  null
+						|| shipmentHistoryDetail.shipmentDate == ""){
+					$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_history_shipmentDate_error));
+					returnValue = false;
+				}else{
+					var diffDays = 1000* 60 * 60* 24;
+					var currentDate = new Date();
+					var shipmentDate = new Date(shipmentHistoryDetail.shipmentDate);
+					/**Rule: DE5*/
+					if(((shipmentDate.getTime()-currentDate.getTime())/diffDays) > 7){
+						if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_history_future_shipmentDate_error) == -1){
+						$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_history_future_shipmentDate_error));
+						}
+						returnValue = false;
+					}
+				}
+				return returnValue;
+			};
+			$scope.nextShipmentHistory = function(item) {
+				$scope.plainMessage = "";
+				angular.forEach($scope.record.shipmentDetails.shipmentItemDetails,function(shipmentItemDetail){
+					
+					if(shipmentItemDetail.isItemChecked == '1'){
+						if($scope.currentRowNum == (shipmentItemDetail.shipmentHistoryDetails.length-1)){
+						$scope.isShowEntryDiv = "true";
+						$scope.hidePrevious = 'false';
+						$scope.newRowNum = $scope.newRowNum+1;
+						}else{
+							$scope.newRowNum = $scope.newRowNum+1;
+						}
+					}
+				});
+			};
+			$scope.previousShipmentHistory = function(item) {
+				$scope.plainMessage = "";
+				document.body.scrollTop = 0;
+				if($scope.newRowNum != 0){
+				$scope.newRowNum = $scope.newRowNum-1;
+				}
+			};
+			$scope.clear = function() {
+				
+				if($scope.isShowEntryDiv == "true"){
+					//alert("new entry")
+				$scope.errorDescriptionList = [];
+				document.body.scrollTop = 0;
+				$scope.record.shipmentDetails.shipmentItemDetails.shipmentHistoryDetail = angular.copy($scope.emptyHistory);
+				}else{
+					var rowCount = 0;
+					var index = 0;
+					
+					//alert(" size "+$scope.selectedShipmentItem.shipmentHistoryDetails.length)
+						angular.forEach($scope.selectedShipmentItem.shipmentHistoryDetails,function(shipmentHistoryDetail){
+							//alert("shipmentHistoryDetail.rowNum  "+shipmentHistoryDetail.rowNum)
+							//alert("$scope.newRowNum  "+$scope.newRowNum)
+							//alert(" size 1"+$scope.selectedShipmentItem.shipmentHistoryDetails.length)
+							
+							if($scope.newRowNum == shipmentHistoryDetail.rowNum){
+								//alert("matched "+rowCount);
+								rowCount--;
+								index = $scope.selectedShipmentItem.shipmentHistoryDetails.indexOf(shipmentHistoryDetail);
+							}else{
+								//alert("not matched "+rowCount);
+								shipmentHistoryDetail.rowNum = rowCount;
+							}
+							rowCount++;
+						});
+						//alert(JSON.stringify($scope.selectedShipmentItem.shipmentHistoryDetails));
+						$scope.selectedShipmentItem.shipmentHistoryDetails.splice(index, 1);  
+						//alert(JSON.stringify($scope.selectedShipmentItem.shipmentHistoryDetails));
+						//alert($scope.selectedShipmentItem.shipmentHistoryDetails.length+"--"+$scope.newRowNum)
+						if($scope.selectedShipmentItem.shipmentHistoryDetails.length==0){
+							$scope.isShowEntryDiv = "true";
+						}
+						else if($scope.newRowNum == ($scope.selectedShipmentItem.shipmentHistoryDetails.length)){
+							//alert($scope.selectedShipmentItem.shipmentHistoryDetails.length+"--equals-"+$scope.newRowNum)
+							$scope.newRowNum =$scope.selectedShipmentItem.shipmentHistoryDetails.length-1;
+						}else{
+							//alert($scope.selectedShipmentItem.shipmentHistoryDetails.length+"---"+$scope.newRowNum);
+							$scope.newRowNum =$scope.selectedShipmentItem.shipmentHistoryDetails.length-1;
+						}
+						
+						/*if($scope.currentRowNum == ($scope.selectedShipmentItem.shipmentHistoryDetails.length-1)){
+						$scope.isShowEntryDiv = "true";
+						$scope.hidePrevious = 'false';
+						$scope.newRowNum = $scope.newRowNum+1;
+						}else{
+							$scope.newRowNum = $scope.newRowNum+1;
+						}*/
+				}
+				
+			};
+			$scope.closeButton = function() {
+				
+				$scope.errorDescriptionList = [];
+				if(!$scope.mandatoryListHistoryValidation()){
+					return;
+				}
+				if($scope.errorDescriptionList.length == 0){
+					$scope.toggleOverlay();			
+				}
+				
+			};
+			$scope.close = function() {
+				$window.close();
+			};
+			
+			$scope.validateAlphabetic = function(object) {
+				var ref = /^[A-Za-z]+$/;
+				if (!object.match(ref)) {
+					return false;
+				}
+				return true;
+			};
+			$scope.validateNumeric = function(object) {
+				var ref = /^[0-9]+$/;
+				if (!object.match(ref)) {
+					return false;
+				}
+				return true;
+			};
+			$scope.toggleOverlay = function() {
+				document.body.scrollTop = 0;
+				var overlay = document.getElementById('overlay');
+				var specialBox = document.getElementById('specialBox');
+				overlay.style.opacity = .8;
+				if (overlay.style.display == "block") {
+					overlay.style.display = "none";
+					specialBox.style.display = "none";
+				} else {
+					overlay.style.display = "block";
+					specialBox.style.display = "block";
+				}
+			};
+			
+		}]);
+
+genRepApplication
+		.controller(
+				'genRepPageController',['$route','$scope','$http','$location','$timeout','$interval','$window','ngTableParams','LoginService','LoadMainTransaction','LoadPreservedAttributes',
+						function($route,$scope, $http, $location,$timeout,$interval,$window, ngTableParams,
+								LoginService, LoadMainTransaction,LoadPreservedAttributes) {
+							var self = this;
+							/* Angular Variables */
+							$scope.po_hide = LoadMainTransaction.getPoHide();
+							$scope.loginUser = "";
+							$scope.countryCode = 0;
+							$scope.transactionPage = LoadMainTransaction.getPageTab();
+							$scope.searchPage = 1;
+							$scope.manualInput = 'pages/captureTransaction.html';
+							$scope.SearchDetails = 'pages/retrieveTransaction.html';
+							$scope.transactionDetails = 'pages/shipmentDetails.html';
+							$scope.transactionStatementDetails = 'pages/transactionStatement.html';
+							$scope.searchResult = 'pages/searchResult.html';
+							$scope.shipmentResult = 'pages/shipmentResult.html';
+							$scope.mainPageNavigator = "main";
+							$scope.enableTransactionHistory = "false";
+							$scope.enableCopyButton = "false";
+							$scope.waitScreenMessage = "";
+							$scope.displaySEStaticBlock = false;
+							$scope.displayBYStaticBlock = false;
+							$scope.isReceiverDisabled = true;
+							$scope.enableTransactionStmtUpload = true;
+							$scope.enableTransactionHistUpload = true;
+							$scope.isReceiverDisabled = true;
+							$scope.shipmentDetail = null;
+							$scope.plainMessage = "";
+							$scope.plainMessageForVendor = "";
+							$scope.purchaseOrderNumber = "";
+							$scope.vendorNumber = {value: ''};
+							$scope.documentStatement = "";
+							$scope.documentHistory="";
+							$scope.businessUnitNumber = "";
+							$scope.locationNumber = "";
+							$scope.isJobCodeAvailable = false;
+							$scope.isAdminJobCodeAvailable = false;
+							$scope.isClearTrustAvailable = false;
+							$scope.countryCodeForAddress = "2";
+							$scope.showMenu = true;
+							$scope.vendorRecord = [];
+							$scope.vendorResponse = null;
+							$scope.isTsButtonEnabled=true;
+							$scope.errorVendorDescriptionList = [];
+							if(LoadPreservedAttributes.getRefreshFlag() == "0" && $scope.loginUser == ""){
+								LoadPreservedAttributes.setRefreshFlag("1"); 
+								$route.reload();
+							}
+							$scope.currentStatementRow = 0;
+							$scope.checkHeader = function() {
+								
+								$http.get('genrep/genrepCommonWebService/getHeader')
+								.success(function(data, status, headers,
+										config) {
+									console.log(data);
+									$scope.isJobCodeAvailable = data.jobCodeAvailable;
+									$scope.isAdminJobCodeAvailable = data.adminJobCodeAvailable;
+										
+									$scope.loginUser = data.userId;
+									$scope.locationNumber = data.divisionNumber;
+									if(data.countryCodeForAddress == "PR"){
+										$scope.countryCodeForAddress = "1";
+									}else{
+										$scope.countryCodeForAddress = "2";
+									}
+									
+									if(data.clearTrustAvailable == false){
+										
+											$scope.businessUnitNumber =data.businessUnit;
+											if(data.businessUnit == "DC"){
+												$scope.countryCode = 1;
+											}else if(data.businessUnit == "CL"){
+												$scope.countryCode = 2;
+											}else if(data.businessUnit == "ST"){
+												$scope.countryCode = 3;
+											}else{
+												$scope.countryCode = 4;
+											} 
+										
+									}else{
+										$scope.businessUnitNumber =data.businessUnit;
+										if(data.businessUnit == "DC"){
+											$scope.countryCode = 1;
+										}else if(data.businessUnit == "CL"){
+											$scope.countryCode = 2;
+										}else if (data.businessUnit == "ST"){
+											$scope.countryCode = 3;
+										}else if(data.businessUnit == "HO"){
+											$scope.countryCode = 4;
+										}
+									}
+									
+									$scope.searchCriterias.locationNbr = $scope.locationNumber;
+									
+									if((data.clearTrustAvailable == true && $scope.isJobCodeAvailable == false) || $scope.countryCode==0){
+										$scope.showMenu = false;
+									}else{
+										$scope.showMenu = true;
+									}
+								});
+							};
+							$scope.checkHeader();
+							$interval(function(){
+								$scope.checkHeader();
+								},840000);
+							var d=new Date();
+							var year=d.getFullYear();
+							var month=d.getMonth()+1;
+							var minutes=d.getMinutes();
+							var hours=d.getHours();
+							if (month<10){
+							month="0" + month;
+							};
+							var day=d.getDate();
+							if (day<10){
+								day="0" + day;
+							};
+							$scope.date=year + "-" + month + "-" + day;
+							
+							$scope.dateAndTime=month + "/" + day + "/" + year + " " + hours+ ":" +minutes;
+
+							$scope.NDC = '';
+								//'883468029';
+							// alert($scope.po_hide)
+							$scope.genrepLoginError = '';
+							$scope.errorMessage = "";
+							$scope.record = null; 
+							$scope.editLinkSwitch = true;
+							$scope.searchCriterias = {
+									ndcNbr : '',
+									itemNbr : '',
+									poNbr : '',
+									vendorNbr : '',
+									transactionFromDate : '',
+									transactionToDate : '',
+									lotNbr : '',
+									locationNbr : ''
+							};
+							$scope.emptyAdress = [{
+									addressLine1 : null,
+									shpmtAddressCode : 'SE',
+									shpmtAddressId : null,
+									companyName : null,
+									addressLine2 : null,
+									stateName : null,
+									cityName : null,
+									postalCode : null,
+									languageCode : null
+								},{
+									addressLine1 : null,
+									shpmtAddressCode : 'BY',
+									shpmtAddressId : null,
+									companyName : null,
+									addressLine2 : null,
+									stateName : null,
+									cityName : null,
+									postalCode : null,
+									languageCode : null
+								}
+								];
+							
+							$scope.countryCodeOptions = [{
+								   name: 'US',
+								   value: 'US'
+								}, {
+								   name: "SM",
+								   value: "SAM's"
+								},{
+									   name: "PR",
+									   value: "Peurto Rico"
+									}];
+							$scope.shipmentAddressDetailList = $scope.emptyAdress;
+							/*Function to change default empty page while changing PO number*/
+							$scope.changeToEmptyPage = function() {
+								$scope.plainMessage = "";
+								$scope.errorSwitch_PO = "0";
+								$scope.errorSwitch_NDC = "0";
+								$scope.record = null;
+								$scope.shipmentRecord = null;
+								$scope.shipmentAddressDetailList = null;
+								$scope.shipmentAddressDetailList = $scope.emptyAdress;
+								$scope.errorDescriptionList = [];
+								$scope.enableCopyButton = 'false';
+								$scope.enableTransactionHistory = "false";
+								$scope.documentStatement = "";
+								$scope.documentHistory="";
+								var inputstmt = document.getElementById("statementFile") ;
+								inputstmt.value = null;
+								$scope.displaySEStaticBlock = false;
+								$scope.displayBYStaticBlock = false;
+								$scope.isReceiverDisabled = true;
+								$scope.enableTransactionStmtUpload = true;
+								$scope.enableTransactionHistUpload = true;
+							};
+							$scope.changeVendorToEmptyPage = function() {
+								
+								$scope.plainMessageForVendor = "";
+								$scope.errorVendorDescriptionList = [];
+								$scope.vendorRecord = [];
+								$scope.vendorResponse = null;
+							    $scope.currentStatementRow = 0;
+							    $scope.isTsButtonEnabled=true;
+							};
+							$scope.clearVendorPage = function() {
+								$scope.vendorNumber = {value: ''};
+								$scope.changeVendorToEmptyPage();
+							};
+							$scope.printDiv = function(divName) {
+								var printContents = document.getElementById(divName).innerHTML;
+								  var popupWin = window.open('', '_blank', 'width=1200,height=1200');
+								  popupWin.document.open();
+								  popupWin.document.write('<html><head><link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" /></head><body onload="window.print()">' + printContents + '</html>');
+								  popupWin.document.close();
+							};
+							$scope.HandleBrowseClick = function(uploadItem) {
+								if(uploadItem == 'statement'){
+							    var fileinput = document.getElementById("statementFile");
+							    fileinput.click();
+								}
+								if(uploadItem == 'history'){
+								    var fileinput = document.getElementById("historyFile");
+								    fileinput.click();
+								}
+							};
+							
+
+					        $scope.setTitle = function(fileInput,uploadItem) {
+					        	
+					        var filename = "";
+					        if(uploadItem == 'statement'){
+					        	var fileinput = document.getElementById("statementFile");
+					        }else{
+					        	var fileinput = document.getElementById("historyFile");	
+					        }
+					        var file=fileinput.value;
+					        filename = file.replace(/^.*[\\\/]/, '');
+					       
+					        if(uploadItem == 'statement' && filename != ""){
+					        	$scope.shipmentRecord.statementPath = filename;
+					        	$scope.documentStatement="(Attached File: "+filename+")";
+					        }
+					        if(uploadItem == 'statement' && filename == ""){
+					        	$scope.documentStatement = "";
+					        }
+					        if(uploadItem == 'history' && filename != ""){
+					        	$scope.shipmentRecord.historyPath = filename;
+					        	$scope.documentHistory="(Attached File: "+filename+")";
+					        	$scope.enableTransactionHistUpload = false;
+					        	$scope.enableTransactionHistory = "false";
+					        }
+					        if(uploadItem == 'history' && filename == ""){
+					        	$scope.documentHistory="";
+					        	$scope.enableTransactionHistory = "true";
+					        }
+					        
+					    }; 
+				        $scope.uploadFile=function(){
+					             var formData=new FormData();
+					         formData.append("statementFile",statementFile.files[0]);
+					         formData.append("historyFile",historyFile.files[0]);
+					         $http.post('genrep/genrepCommonWebService/newDocument',formData,
+					        		 {transformRequest : angular.identity,headers: { 'Content-Type': undefined},params : {
+					 					'fetchRequest' : "hai"
+					 				},})
+					                .success(function(data, status) {  
+					                	isFileSaved = true;
+					                })
+					                .error(function(data, status) {
+					                	isFileSaved = false;
+					                });
+					         return isFileSaved;
+					      };
+
+						   
+
+
+							$http.get('properties/genrepcommon.properties')
+									.success(function(response) {
+										$scope.fieldValue = response;
+									});
+							
+							/*To redirect to login page when user does not found*/
+							/*if($scope.loginUser == null || $scope.loginUser == ""){
+								LoadPreservedAttributes.setPoNumber("");
+								$location.path('/');
+							}*/
+							
+							/*
+							 * Angular functions changing tabs at menu page
+							 */
+							$scope.opentransactionHistory = function() {
+								//sessionStorage["record"] = JSON.stringify($scope.record);
+								window.$windowScope = $scope;
+								
+								$window.open('#/menu/transactionHistory');
+							};			
+							
+							$scope.changeTab = function(tab) {
+								
+								$scope.transactionPage = tab;
+							};
+							$scope.callingBusinessUnit = function() {
+								$scope.countryCode = document.getElementById("selectedValue").value;
+								
+							};
+							
+							/* login Screen validation */
+							$scope.validateLogin = function() {
+								var jsonObj = {
+									userName : self.username,
+									password : self.password
+								};
+								$scope.errorDescriptionList = [];
+								LoginService
+										.validateCall('genrep/validate/login',
+												jsonObj)
+										.success(
+												function(data, status, headers,
+														config) {
+													//alert(data.loginStatus);
+													if (data.errorReports.errorCode != null) {
+														console.error(data);
+														$scope.errorNavigation(data.errorReports);
+														$scope.po_hide = "HIDE";
+													}else if(data.loginStatus == "FAILURE"){
+														//alert(data.loginStatus);
+														$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_login_error));
+													}	else {
+														
+														$location.path('/menu/ManualEntry');
+													}
+
+													/*
+													 * if(data == "Success"){
+													 * $location.path('/menu/empty/' +
+													 * $scope.po_hide);
+													 * //$scope.genrepLoginError =
+													 * "1"; }else{
+													 * $scope.genrepLoginError =
+													 * "1"; }
+													 */
+												});
+								LoginService.setLoginUser(self.username,document.getElementById("selectedValue").value);
+							};
+							
+							$scope.fetchVendorDetails = function(vendorNumber){
+								$scope.plainMessageForVendor = "";
+								$scope.changeVendorToEmptyPage();
+								if (!$scope.validateNumeric(vendorNumber)) {
+									$scope.errorVendorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_statement_vndr_nbr_invalid));
+									return;
+								}else if(vendorNumber > parseInt($scope.fieldValue.genrep_max_int_value)){
+									$scope.errorVendorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_statement_ingeter_exceed));
+									return;
+								}
+								var jsonObj = "";
+								jsonObj = {
+									vendorNumber : vendorNumber
+								};
+								$scope.vendorRecord = [];
+								$scope.screenPopValidation($scope.fieldValue.genrep_screen_pleasewait_Message);
+								LoadMainTransaction
+								.fetchPoLine(
+										'genrep/genrepCommonWebService/fetchVendorDetails',
+										jsonObj)
+								.success(
+										function(data, status, headers,
+												config) {
+											$scope.screenPopValidation("Empty");
+											if (data.errorReports.errorCode != null) {
+												$scope.errorVendorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_statement_vndr_nbr_invalid));
+												return;
+											} else {
+												$scope.vendorRecord = data.statementDetails.shipmentStatementDetailsList;
+												$scope.vendorResponse = data;
+												if($scope.vendorResponse.statementDetails.vndrName == null || $scope.vendorResponse.statementDetails.vndrName ==""){
+													$scope.errorVendorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_statement_vndr_nbr_invalid));
+													return;
+												}
+												angular.forEach($scope.vendorRecord,function(vendorRecord){
+													if(vendorRecord.transactionStatement != "" && vendorRecord.transactionStatement != null){
+													vendorRecord.dummyStatementSeqNbr = vendorRecord.statementSeqNbr;
+													}
+												});
+												if($scope.vendorResponse.statementDetails.vndrName != "" && $scope.vendorRecord.length <= 0){
+													$scope.errorVendorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_statement_no_statament));
+													for(var i= 0;i<1;i++){
+													var newStatement = angular.copy(data.statementDetails.shipmentStatementDetails);
+													newStatement.vndrNbr =vendorNumber;
+													newStatement.dummyStatementSeqNbr = "";
+													newStatement.statementSeqNbr = i+1;
+													newStatement.transactionStatement = "";
+													newStatement.userId = "";
+													newStatement.effectiveDate = "";
+													newStatement.isStatementAvailable = "false";
+													$scope.vendorRecord.push(newStatement);
+													}
+												}
+											}
+										});
+							};
+							
+							
+							/* fetch list of transaction info for capture */
+							$scope.fetchPOLines = function(poNumber) {
+								$scope.purchaseOrderNumber = poNumber;
+								$scope.plainMessage = "";
+								$scope.changeToEmptyPage();
+//								LoadPreservedAttributes.setPoNumber(poNumber);
+								//window.open("/gjaya/RX-docx/Pharmacy Compliance  2015-01-08.pdf");
+								/* Validate Numeric */
+								if (!$scope.validateNumeric(poNumber)) {
+									$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_po_numneric));
+									return;
+								} 
+
+								var jsonObj = "";
+								jsonObj = {
+									poNumber : poNumber,
+									countryCode : $scope.countryCode,
+									countryCodeForAddress : $scope.countryCodeForAddress
+								};
+
+								//$scope.po_hide = "HIDE";
+								$scope.shipmentRecord = null;
+								$scope.currentShipmentRecord = null;
+								LoadPreservedAttributes.setShipentId(0);
+								$scope.screenPopValidation($scope.fieldValue.genrep_screen_pleasewait_Message);
+								LoadMainTransaction
+										.fetchPoLine(
+												'genrep/genrepCommonWebService/createPO/fetchPoLines',
+												jsonObj)
+										.success(
+												function(data, status, headers,
+														config) {
+													
+													$scope.screenPopValidation("Empty");
+													if (data.errorReports.errorCode != null) {
+														console.error(data);
+														$scope
+																.errorNavigation(data.errorReports);
+														//$scope.po_hide = "HIDE";
+													} else {
+														
+														$scope.shipmentRecord = data.shipmentDetails;
+														$scope.dc_nbrs = ['6000','6001','6013','6028','6032','6045','6046'];
+														var isAvailable = false;
+														angular.forEach($scope.dc_nbrs,function(dcNbr){
+															
+															if(angular.equals(JSON.stringify($scope.shipmentRecord.ebuNbr),dcNbr)){
+																
+																isAvailable = true;
+															}
+															
+														});
+														
+														if(($scope.countryCode == "3" && isAvailable) || ($scope.countryCode == "1" && !isAvailable)) {
+																$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_invalid_ponumber));
+																$scope.shipmentRecord = null;
+																return;
+														}
+														if(($scope.countryCode == "3" && 
+																$scope.shipmentRecord.countryCode == "US" && $scope.countryCodeForAddress == "1")
+														|| 	( $scope.countryCode == "3" && 
+														$scope.shipmentRecord.countryCode == "PR" && $scope.countryCodeForAddress == "2")){
+															$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_invalid_ponumber));
+															$scope.shipmentRecord = null;
+															return;
+														}
+														
+														LoadMainTransaction
+																.getCreateTransaction(
+																		data,
+																		$scope.po_hide);
+														
+														data = LoadMainTransaction
+																.setTransaction();
+														$scope.record = LoadMainTransaction
+																.setTransaction();
+														$scope.shipmentRecord = data.shipmentDetails;
+														$scope.shipmentRecord.asnNumber = "000";
+														
+														$scope.shipmentRecord.shipmentDate1 = $scope.date;
+														$scope.shipmentRecord.ownershipTransferDate1 = $scope.date;
+														$scope.shipmentAddressDetailList = data.shipmentDetails.shipmentAddressDetailList;
+														if(data.shipmentDetails.shipmentAddressDetailList.length <2){
+															angular.forEach(data.shipmentDetails.shipmentAddressDetailList,function(shipmentAddressDetails){
+																
+																if(shipmentAddressDetails.shpmtAddressCode == 'SE'){
+																	$scope.shipmentAddressDetailList.push(angular.copy($scope.emptyAdress[1]));
+																	$scope.displayBYStaticBlock = false;
+																	$scope.displaySEStaticBlock = true;
+																}else{
+																	$scope.shipmentAddressDetailList.push(angular.copy($scope.emptyAdress[0]));
+																	$scope.displaySEStaticBlock = false;
+																	$scope.displayBYStaticBlock = true;
+																}
+																	
+															});
+														}else{
+															$scope.displaySEStaticBlock = true;
+															$scope.displayBYStaticBlock = true;
+														}
+														
+														if($scope.shipmentRecord.statementTxt ==null || $scope.shipmentRecord.statementTxt ==""){
+															$scope.enableTransactionStmtUpload = false;
+														}else{
+															$scope.enableTransactionStmtUpload = true;
+														}
+														$scope.enableTransactionHistUpload = false;
+														$scope.po_hide = "SHOW";
+														$scope.errorDescriptionList = [];
+														/**
+														 * Removed
+														 * if($scope.shipmentRecord.stmtAvailableIn != true){
+															$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_statement_Data_missing));
+														}*/
+														
+													}
+												});
+							};
+							$scope.clearsearch = function(){
+								$scope.searchCriterias = {
+									ndcNbr : '',
+									itemNbr : '',
+									poNbr : '',
+									vendorNbr : '',
+									transactionFromDate : '',
+									transactionToDate : '',
+									lotNbr : '',
+									locationNbr : ''
+							};
+							};
+							$scope.search = function() {
+								if($scope.mandatoryValidationForSearch()){
+									$scope.screenPopValidation($scope.fieldValue.genrep_screen_pleasewait_Message);
+									LoadMainTransaction
+									.searchPoLine(
+											'genrep/genrepCommonWebService/createPO/search',
+											$scope.searchCriterias)
+									.success(
+											function(data, status, headers,
+													config) {
+												$scope.screenPopValidation("Empty");
+												LoadMainTransaction
+														.getCreateTransaction(
+																data,
+																$scope.po_hide);
+												$scope.searchRecord = data;												
+												if($scope.searchRecord.shipmentDetailList.length > 0){
+													$scope.searchResultMsg = true;
+												}else{
+													$scope.searchResultMsg = false;
+												}
+												
+												
+												
+											});
+									
+									$scope.searchPage = 2;
+								}
+							};
+							$scope.clickReviewDocument = function(item) {
+								$scope.errorDescriptionSearchResultList = [];
+								var data = "";
+								if(item == "stmt"){
+									data = $scope.shipmentDetail.statementPath;
+									if(data == null){
+										$scope.errorDescriptionSearchResultList.push(angular.copy($scope.fieldValue.genrep_error_statement_file_null));
+										document.body.scrollTop = 0;
+										return;
+									}
+								}else{
+									data = $scope.shipmentDetail.historyPath;
+									if(data == null){
+										$scope.errorDescriptionSearchResultList.push(angular.copy($scope.fieldValue.genrep_error_history_file_null));
+										document.body.scrollTop = 0;
+										return;
+									}
+								}
+								$http.post('genrep/genrepCommonWebService/downloadDocument',data,{responseType : 'arraybuffer'}).success(function (data) {
+					                 var file = new Blob([data], { type: 'application/pdf' });
+					                 var fileURL = URL.createObjectURL(file);
+					                 window.open(fileURL);
+					             });
+								
+
+							};
+							$scope.backOption = function(tab) {
+								$scope.searchPage = tab;
+							};
+							$scope.manualEntryNavigation = function(){
+								$scope.changeTab('1');
+								
+							};
+							$scope.searchPageNavigation = function(){
+								$scope.changeTab('2');
+							};
+							$scope.openShipment = function(shipmentId,lotNumber) {
+								
+								$scope.searchByShipmentId = {
+										shipmentId : shipmentId,
+										lotNumber : lotNumber										
+								};
+								LoadMainTransaction
+								.searchPoLine(
+										'genrep/genrepCommonWebService/createPO/searchByShipmentId',
+										$scope.searchByShipmentId)
+								.success(
+										function(data, status, headers,
+												config) {
+											LoadMainTransaction
+													.getCreateTransaction(
+															data,
+															$scope.po_hide);
+											$scope.shipmentDetail = data.shipmentDetails;
+											
+											$scope.errorDescriptionSearchResultList = [];
+										});
+								
+								$scope.searchPage = 2;
+								$scope.searchPage = 3;
+							};
+							
+							$scope.copyItems = function() {
+								
+								var toBeSavedItems = [];
+								$scope.errorDescriptionList = [];
+								/**Error Message rule: EMDE8*/
+								if($scope.record == null){
+									$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_Copy_error));
+									document.body.scrollTop = 0;
+									return;
+								}
+								toBeSavedItems = angular.copy($scope.shipmentRecord.shipmentItemDetails);
+								var itemCount = angular.copy(toBeSavedItems.length);
+								
+								var isChecked = false;
+								for(var i=0 ; i<itemCount;i++){
+									if(toBeSavedItems[i].isItemChecked == '1'){
+										isChecked = true;
+									}
+								}
+								if(isChecked == false){
+									$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_Copy_error));
+									return;
+								}
+								$scope.shipmentRecord.shipmentItemDetails = [];
+								var count =0;
+								/**Rule: DE10*/
+								for(var i=0 ; i<itemCount;i++){
+									$scope.shipmentRecord.shipmentItemDetails.push(angular.copy(toBeSavedItems[i]));
+									if(toBeSavedItems[i].isItemChecked == '1'){
+										//sDetails.isItemChecked = '0';
+										toBeSavedItems[i].drugLotNbr = '';
+										toBeSavedItems[i].drugLotExpiryDate1 = null;
+										toBeSavedItems[i].itemReceiveQty = 0;
+										toBeSavedItems[i].isItemChecked = '0';
+										$scope.shipmentRecord.shipmentItemDetails.push(angular.copy(toBeSavedItems[i]));
+										count++;
+									}
+									
+								}
+							};
+							
+							$scope.enableButton = function() {
+								var count = 0;
+								angular.forEach($scope.shipmentRecord.shipmentItemDetails,function(shipmentItemDetail){
+									if(shipmentItemDetail.isItemChecked == 1){
+										count++;
+									}
+									
+							});
+								if(count==1){
+										$scope.enableTransactionHistory = "true";
+								}else{
+									$scope.enableTransactionHistory = "false";
+								}
+								if(count>0){
+									$scope.enableCopyButton = 'true';
+								}else{
+									$scope.enableCopyButton = 'false';
+								}
+							};
+							/*$interval(function(){
+								$scope.checkShipmentHistorySaved();
+								},1000);
+							$scope.checkShipmentHistorySaved = function() {
+								angular.forEach($scope.shipmentRecord.shipmentItemDetails,function(shipmentItemDetail){
+										if(shipmentItemDetail.shipmentHistoryDetails.length >0){
+											$scope.enableTransactionHistUpload = true;
+										}
+									
+								});
+							};*/
+							
+							/*
+							 * Function to click to save Information from
+							 * Transaction details
+							 */
+							$scope.onSaveShipment = function() {
+								$scope.screenPopValidation($scope.fieldValue.genrep_screen_pleasewait_Message);
+								$scope.shipmentRecord.userId = $scope.loginUser;
+								$scope.shipmentRecord.shipmentId = null;
+								var formData=new FormData();
+						         formData.append("statementFile",statementFile.files[0]);
+						         formData.append("historyFile","");
+						         formData.append("shipmentDetailsJson",angular.toJson($scope.shipmentRecord));
+						         $http.post('genrep/genrepCommonWebService/saveShipmentDetails',formData,
+						        		 {transformRequest : angular.identity,headers: { 'Content-Type': undefined},params : {
+						 					'hi' : "hi"
+						 				},})
+						                .success(function(successData, status) { 
+						                	if (successData.errorReports.errorCode == null) {
+							                	$scope.screenPopValidation("Empty");
+							                	$scope.purchaseOrderNumber = "";
+							                	$scope.changeToEmptyPage();
+							                	$scope.showSuccessmessage(successData.shipmentDetails);
+												$scope.editLinkSwitch = true;
+												//$scope.shipmentRecord = successData.shipmentDetails;
+												//$scope.shipmentRecord.shipmentDate = $scope.shipmentRecord.shipmentDate1;
+						                	}else{
+						                		$scope.screenPopValidation("Empty");
+												$scope.errorNavigation(successData.errorReports);
+						                	}
+						                });
+							};
+							
+							$scope.errorNavigation = function(errorReports) {
+								$scope.errorDescriptionList = [];
+								var errorCode = errorReports.errorCode;
+								var errorDesc = errorReports.errorDescription;
+								// Invalid User to access
+								if (errorCode == "401") {
+									LoadPreservedAttributes.setPoNumber("");
+									$location.path('/');
+								}
+								// Server Exception
+								else if (errorCode == "ERR_WM_SE_001") {
+									$scope.errorDescriptionList.push(angular.copy("System Exception! Please try after sometime."));
+
+								} else if (errorCode	 == "ERR_WM_SE_001") {
+									$scope.errorDescriptionList.push(angular.copy("Invalid Credentials! Please try with valid credentials."));
+									
+								}
+
+								// PO fetch Web Service
+								/**Error Message rule: EMDE2*/
+								else if (errorCode == "0404") {
+									$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_invalid_ponumber));
+								}
+								// DATABASE Not Found
+								else if (errorCode == "ERR_WM_SQL_001") {
+									$scope.errorDescriptionList.push(angular.copy("SQL EXCEPTION! Please Check your Data"));
+								}
+								else {
+									$scope.errorDescriptionList.push(angular.copy(errorReports.errorDescription));
+								}
+
+							};
+							$scope.saveOption = function() {
+								
+								/**if($scope.shipmentAddressDetailList.length < '2'){
+								
+								$scope.shipmentRecord.shipmentAddressDetails.shpmtAddressCode = "BY";
+								$scope.shipmentAddressDetailList.push($scope.shipmentRecord.shipmentAddressDetails);
+								}*/
+								if($scope.shipmentAddressDetailList != null){
+									$scope.shipmentRecord.shipmentAddressDetailList = $scope.shipmentAddressDetailList;
+								}
+								
+								if($scope.mandatoryValidationForEntry($scope.shipmentRecord)){
+							
+								$scope.onSaveShipment();
+								}
+								
+							};
+							
+							$scope.saveStatement = function(vendorNumber) {
+								$scope.errorVendorDescriptionList = [];
+								angular.forEach($scope.vendorRecord,function(vendorRecord){
+									if(vendorRecord.dummyStatementSeqNbr != ""){
+										if(vendorRecord.transactionStatement == "" || vendorRecord.transactionStatement == null){
+											$scope.errorVendorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_statement_statament_mandatory));
+										}
+									}
+								});
+								if($scope.errorVendorDescriptionList.length > 0){
+									return;			
+								}
+								$scope.screenPopValidation($scope.fieldValue.genrep_screen_pleasewait_Message);
+								$scope.maxDummySeqNbr = 0;
+								angular.forEach($scope.vendorRecord,function(vendorRecord){
+									if(vendorRecord.dummyStatementSeqNbr != ""){
+										$scope.maxDummySeqNbr = vendorRecord.dummyStatementSeqNbr;
+									}
+									
+									if(vendorRecord.transactionStatement != "" && vendorRecord.transactionStatement != null){
+										vendorRecord.userId = $scope.loginUser;
+									}
+									if(vendorRecord.transactionStatement != "" && vendorRecord.transactionStatement != null
+											&& vendorRecord.dummyStatementSeqNbr == ""){
+										$scope.maxDummySeqNbr = $scope.maxDummySeqNbr+1;	
+										vendorRecord.dummyStatementSeqNbr = $scope.maxDummySeqNbr;
+										}
+									
+								});
+								$scope.vendorResponse.statementDetails.userId = $scope.loginUser;
+								$http.post('genrep/genrepCommonWebService/saveShipmentStatementDetails',$scope.vendorResponse).success(function (successData) {
+									if (successData.errorReports.errorCode == null) {
+					                	$scope.screenPopValidation("Empty");
+					                	
+					                	$scope.plainMessageForVendor = "Vendor Information for Vendor number "+vendorNumber+" is successfully saved!";
+					                	$scope.vendorRecord = [];
+					                	$scope.vendorResponse = null;
+					                	angular.forEach($scope.vendorRecord,function(vendorRecord){
+											if(vendorRecord.transactionStatement != "" && vendorRecord.transactionStatement != null){
+											vendorRecord.isStatementAvailable = "true";
+											vendorRecord.dummyStatementSeqNbr = vendorRecord.statementSeqNbr;
+											}
+										});
+				                	}else{
+				                		$scope.screenPopValidation("Empty");
+				                		$scope.errorVendorDescriptionList.push(angular.copy(successData.errorReports.errorDescription));
+				                	}
+								});
+							};
+							$scope.validateStatement = function() {
+									var maxStmtAvail = 0;
+									var statementIds = [];
+									var statementAvailable=false;
+									angular.forEach($scope.vendorRecord,function(vendorRecord){
+										if(vendorRecord.transactionStatement != "" && vendorRecord.transactionStatement != null){
+											statementAvailable=true;
+											maxStmtAvail = 1;
+										}else{
+											maxStmtAvail = 0;
+										}
+										statementIds.push(vendorRecord.statementSeqNbr);
+									});
+									if(statementAvailable==true){
+										$scope.isTsButtonEnabled=false;
+									}
+									else
+									{
+										$scope.isTsButtonEnabled=true;
+									}
+								
+									if(maxStmtAvail == 1){
+										var maxStatamentId = Math.max.apply(Math,statementIds)+1;
+										for(var i=0; i<1;i++){
+											var newStatement = angular.copy($scope.vendorRecord[0]);
+											newStatement.dummyStatementSeqNbr = "";
+											newStatement.statementSeqNbr = maxStatamentId;
+											newStatement.transactionStatement = "";
+											newStatement.userId = "";
+											newStatement.effectiveDate = "";
+											newStatement.isStatementAvailable = "false";
+											$scope.vendorRecord.push(newStatement);
+											maxStatamentId++;
+										}
+									}
+								$scope.currentStatementRow = $scope.currentStatementRow+1;
+								if($scope.currentStatementRow == $scope.vendorRecord.length){
+									angular.forEach($scope.vendorRecord,function(vendorRecord){
+										var overlay = document.getElementById('Statement'+vendorRecord.statementSeqNbr);
+										if(overlay != null){
+											textAreaAdjust(overlay);
+										}
+										
+									});
+								}
+							};
+							
+							
+							/* Function to mandatory check in shipment details */
+							$scope.mandatoryValidationForEntry = function(
+									shipmentRecord) {
+								
+								if($scope.errorDescriptionList.length = 0){
+								$scope.errorDescriptionList = [];
+								}
+								
+								var returnValue = true;
+									/*Checking ShipmentDate empty*/
+									//alert(shipmentRecord.shipmentDate)
+								//Needs to be Completed
+									angular.forEach($scope.shipmentRecord.shipmentAddressDetailList,function(shipmentAddressDetail){
+										
+										if(shipmentAddressDetail.companyName == null || shipmentAddressDetail.companyName == ""
+											|| shipmentAddressDetail.addressLine1 == null || shipmentAddressDetail.addressLine1 == ""
+												|| shipmentAddressDetail.cityName == null || shipmentAddressDetail.cityName == ""
+													|| shipmentAddressDetail.stateName == null || shipmentAddressDetail.stateName == ""
+														|| shipmentAddressDetail.postalCode == null || shipmentAddressDetail.postalCode == ""){
+											/**Error Message rule: EMDE6 and EMDE6*/
+											if(shipmentAddressDetail.shpmtAddressCode == "SE"){
+												$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_null_sellerAddress));
+											}else{
+												$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_null_buyerAddress));	
+											}
+											returnValue = false;
+										}
+									});
+									if(shipmentRecord.shipmentDate1 ==  null || shipmentRecord.shipmentDate1 == ""){
+										$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_null_ShipmentDate));
+										returnValue = false;
+									}
+									if(shipmentRecord.ownershipTransferDate1 ==  null || shipmentRecord.ownershipTransferDate1 == ""){
+										$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_null_TransactionDate));
+										returnValue = false;
+									}else{
+										var diffDays = 1000* 60 * 60* 24;
+										var currentDate = new Date();
+										var ownershipTransferDate = new Date(shipmentRecord.ownershipTransferDate1);
+										if((ownershipTransferDate.getTime() - currentDate.getTime())/diffDays > 0){
+											if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_future_transactionDate_error) == -1){
+												$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_future_transactionDate_error));
+											}
+											returnValue = false;
+										}
+									}
+									
+									/**
+									 * Removed in UAT
+									 * if($scope.countryCode == "1"){
+										$scope.dc_nbrs = ['6000','6001','6013','6028','6032','6045','6046'];
+										var isAvailable = false;
+										angular.forEach($scope.dc_nbrs,function(dcNbr){
+											if(angular.equals(JSON.stringify($scope.shipmentRecord.ebuNbr),dcNbr)){
+												isAvailable = true;
+											}
+										});
+										if(isAvailable){
+											if(shipmentRecord.receiverNumber ==  null || shipmentRecord.receiverNumber == ""){
+												$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_null_ReceiverNumber));
+												returnValue = false;
+											}else{
+													if(shipmentRecord.receiverNumber > parseInt($scope.fieldValue.genrep_max_int_value)){
+															$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_limit_ReceiverNumber));
+															returnValue = false;
+													}
+											}
+										}
+									}*/
+									
+									var diffDays = 1000* 60 * 60* 24;
+									var currentDate = new Date();
+									var shipmentDate = new Date(shipmentRecord.shipmentDate1);
+									var ownershipTransferDate = new Date(shipmentRecord.ownershipTransferDate1);
+									/**Rule: DE5*/
+									if(((shipmentDate.getTime()-ownershipTransferDate.getTime())/diffDays) < 0){
+										$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_ShipDate_early_transDate_error));
+										returnValue = false;
+									}
+									/**Rule: DE7*/
+									
+									if($scope.isAdminJobCodeAvailable == true){
+										if(((shipmentDate.getTime()-currentDate.getTime())/diffDays) > 180 || ((shipmentDate.getTime()-currentDate.getTime())/diffDays) < -180){
+											$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_ShipDate_180days_error));
+											returnValue = false;
+										}
+									}else{
+										if(((shipmentDate.getTime()-currentDate.getTime())/diffDays) > 30 || ((shipmentDate.getTime()-currentDate.getTime())/diffDays) < -30){
+											$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_ShipDate_30days_error));
+											returnValue = false;
+										}
+									}
+									var rowNum = 1;
+									var isItemChecked = false;
+									angular.forEach($scope.shipmentRecord.shipmentItemDetails,function(shipmentItemDetail){
+										var isItemadded = false;
+										var isDlotAvailable = false;
+										var isExpDateAvailable = false;
+										var isRecQtyAvailable = false;
+										//alert(shipmentItemDetail.drugLotNbr+ "  "+ shipmentItemDetail.drugLotExpiryDate1+ "  " +shipmentItemDetail.itemReceiveQty)
+										if(shipmentItemDetail.drugLotNbr !=  null && shipmentItemDetail.drugLotNbr !=""){
+											isDlotAvailable = true;
+											isItemChecked = true;
+											isItemadded = $scope.drugLotNbrValidation(shipmentItemDetail);
+											returnValue = isItemadded;
+											
+											isItemadded = $scope.expDateValidation(shipmentItemDetail);
+											returnValue = isItemadded;
+											
+											isItemadded = $scope.recQtyValidation(shipmentItemDetail);
+											returnValue = isItemadded;
+											
+										}else{
+											isDlotAvailable = false;
+										}
+										if(shipmentItemDetail.drugLotExpiryDate1 !=  null && shipmentItemDetail.drugLotExpiryDate1 !=  ""){
+											isExpDateAvailable = true;
+											isItemChecked = true;
+											isItemadded = $scope.expDateValidation(shipmentItemDetail);
+											returnValue = isItemadded;
+											
+											isItemadded = $scope.drugLotNbrValidation(shipmentItemDetail);
+											returnValue = isItemadded;
+											
+											isItemadded = $scope.recQtyValidation(shipmentItemDetail);
+											returnValue = isItemadded;
+										}else{
+											isExpDateAvailable = false;
+										}
+										if(shipmentItemDetail.itemReceiveQty !=  null && shipmentItemDetail.itemReceiveQty != 0){
+											isRecQtyAvailable = true;
+											isItemChecked = true;
+											isItemadded = $scope.drugLotNbrValidation(shipmentItemDetail);
+											returnValue = isItemadded;
+											
+											isItemadded = $scope.expDateValidation(shipmentItemDetail);
+											returnValue = isItemadded;
+											
+											var recValidate = $scope.recQtyValidation(shipmentItemDetail);
+											if(isItemadded == true){
+											isItemadded = recValidate;
+											}
+											returnValue = isItemadded;
+											
+										}else{
+											isRecQtyAvailable = false;
+										}
+										//alert(isItemadded+"  "+isDlotAvailable+"  "+isExpDateAvailable+"  "+isRecQtyAvailable);
+										if(isItemadded == true && isDlotAvailable == true && isExpDateAvailable == true && isRecQtyAvailable == true){
+											shipmentItemDetail.isItemSaved = true;
+										}
+										
+										document.body.scrollTop = 0;
+										rowNum++;
+									});
+									
+									
+									if(isItemChecked == false){
+										if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_null_DrugLotNumber) == -1){
+											$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_null_DrugLotNumber));
+										}
+										if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_null_ExpirationDate) == -1){
+											$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_null_ExpirationDate));
+										}
+										if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_null_ReceiveQuantity) == -1){
+											$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_null_ReceiveQuantity));
+										}
+									}
+									
+									/**Validations for Transaction Files:*/
+									/**Error Message rule: EMDE4*/
+									//alert(statementFile.files.length)
+									if(shipmentRecord.statementTxt ==null ||shipmentRecord.statementTxt ==""){
+										if(statementFile.files.length == 0 || statementFile.files[0].size == 0){
+											$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_statement_file_missing));
+											returnValue = false;
+										}else{
+											if(shipmentRecord.statementPath != null || shipmentRecord.statementPath != ""){
+												var ext = shipmentRecord.statementPath.substr(shipmentRecord.statementPath.lastIndexOf('.'),shipmentRecord.statementPath.length);
+													if(!angular.equals(ext,'.pdf')){
+											        	$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_statement_filetype_missing));
+											        	}else{
+											        		if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_statement_filetype_missing) != -1){
+											        			$scope.errorDescriptionList.splice($scope.fieldValue.genrep_error_statement_filetype_missing,1);
+											        		}
+											        	}
+											}
+										}
+									}
+									/**Error Message rule: EMDE5
+									 * REMOVED IN UAT
+									 * 
+									if(!$scope.enableTransactionHistUpload == true){
+									if(historyFile.files.length == 0 || historyFile.files[0].size == 0){
+										$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_history_file_missing));
+										returnValue = false;
+									}else{
+										if(shipmentRecord.historyPath != null || shipmentRecord.historyPath != ""){
+											var ext = shipmentRecord.historyPath.substr(shipmentRecord.historyPath.lastIndexOf('.'),shipmentRecord.historyPath.length);
+												if(!angular.equals(ext,'.pdf')){
+										        	$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_history_filetype_missing));
+										        }else{
+										        		if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_history_filetype_missing) != -1){
+										        			$scope.errorDescriptionList.splice($scope.fieldValue.genrep_error_history_filetype_missing,1);
+										        		}
+										        }
+										}
+									}
+									}*/
+									
+								if($scope.errorDescriptionList.length >0){
+									returnValue = false;
+								}
+								return returnValue;
+								
+							};
+							
+							$scope.drugLotNbrValidation = function(shipmentItemDetail) {
+								if(shipmentItemDetail.drugLotNbr ==  null || shipmentItemDetail.drugLotNbr == ""){
+									if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_null_DrugLotNumber) == -1){
+										$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_null_DrugLotNumber));
+									}
+									return false;
+								}
+								return true;
+							};
+							$scope.expDateValidation = function(shipmentItemDetail) {
+								/**Error Message rule: EMDE10*/
+								if(shipmentItemDetail.drugLotExpiryDate1 ==  null || shipmentItemDetail.drugLotExpiryDate1 == ""){
+									if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_null_ExpirationDate) == -1){
+										$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_null_ExpirationDate));
+									}
+									return false;
+									
+								}else{
+									var diffDays = 1000* 60 * 60* 24;
+									var currentDate = new Date();
+									var drugLotExpiryDate1 = new Date(shipmentItemDetail.drugLotExpiryDate1);
+									if((drugLotExpiryDate1.getTime() - currentDate.getTime())/diffDays < -1){
+										if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_future_ExpirationDate) == -1){
+											$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_future_ExpirationDate));
+										}
+										return false;
+										
+									}
+									$scope.dc_nbrs = ['6000','6001','6013','6028','6032','6045','6046'];
+									var isAvailable = false;
+									angular.forEach($scope.dc_nbrs,function(dcNbr){
+										
+										if(angular.equals(JSON.stringify($scope.shipmentRecord.ebuNbr),dcNbr)){
+											
+											isAvailable = true;
+										}
+										
+									});
+									if($scope.countryCode == "1" || $scope.countryCode == "4"){
+										if(isAvailable){
+											if((drugLotExpiryDate1.getTime() - currentDate.getTime())/diffDays < -1){
+												if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_future_ExpirationDate) == -1){
+													$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_future_ExpirationDate));
+												}
+												return false;
+											}
+										}
+									}
+
+									if($scope.countryCode == "4" || $scope.countryCode == "2" || $scope.countryCode == "3"){
+										if(!isAvailable){
+										if((drugLotExpiryDate1.getTime() - currentDate.getTime())/diffDays < 120){
+											if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_120_ExpirationDate) == -1){
+												$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_120_ExpirationDate));
+											}
+											return false;
+										}
+										}
+									}
+									
+									
+								}
+								return true;
+							};
+							$scope.recQtyValidation = function(shipmentItemDetail) {
+								var returnValue = true;
+								/**Error Message rule: EMDE11*/
+								if(shipmentItemDetail.itemReceiveQty ==  null || shipmentItemDetail.itemReceiveQty == ""
+									){
+									if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_null_ReceiveQuantity) == -1){
+										$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_null_ReceiveQuantity));
+									}
+									returnValue = false;
+								}else{
+										if(shipmentItemDetail.itemReceiveQty <=0){
+											if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_null_ReceiveQuantity) == -1){
+												$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_null_ReceiveQuantity));
+											}
+											returnValue = false;
+										}
+										if(shipmentItemDetail.itemReceiveQty > parseInt($scope.fieldValue.genrep_max_int_value)){
+											if($scope.errorDescriptionList.indexOf($scope.fieldValue.genrep_error_limit_ReceiveQuantity) == -1){
+												$scope.errorDescriptionList.push(angular.copy($scope.fieldValue.genrep_error_limit_ReceiveQuantity));
+											}
+											returnValue = false;
+										}
+									
+								}
+								return returnValue;
+							};
+							
+							$scope.mandatoryValidationForSearch = function() {
+								$scope.errorDescriptionSearchList = [];
+								var returnValue = true;
+								var diffDays = 1000* 60 * 60* 24;
+								var currentDate = new Date();
+								var transactionFromDate = new Date($scope.searchCriterias.transactionFromDate);
+								var transactionToDate = new Date($scope.searchCriterias.transactionToDate);
+								
+								/**Rule :RD1*/
+								if($scope.searchCriterias.transactionFromDate ==  null || $scope.searchCriterias.transactionFromDate == ""){
+									if($scope.errorDescriptionSearchList.indexOf($scope.fieldValue.genrep_error_trasactionDate_search_error) == -1){
+									$scope.errorDescriptionSearchList.push(angular.copy($scope.fieldValue.genrep_error_trasactionDate_search_error));
+									returnValue = false;
+									}
+								}
+								/**Rule :RD1*/
+								if($scope.searchCriterias.transactionToDate ==  null || $scope.searchCriterias.transactionToDate == ""){
+									if($scope.errorDescriptionSearchList.indexOf($scope.fieldValue.genrep_error_trasactionDate_search_error) == -1){
+									$scope.errorDescriptionSearchList.push(angular.copy($scope.fieldValue.genrep_error_trasactionDate_search_error));
+									returnValue = false;
+									}
+								}
+								/**EMDA1*/
+								if($scope.searchCriterias.transactionToDate ==  null || $scope.searchCriterias.transactionToDate == ""){
+									if($scope.errorDescriptionSearchList.indexOf($scope.fieldValue.genrep_error_trasactionDate_search_to_error) == -1){
+									$scope.errorDescriptionSearchList.push(angular.copy($scope.fieldValue.genrep_error_trasactionDate_search_to_error));
+									returnValue = false;
+									}
+								}
+								/**Rule :RD1*/
+								if(returnValue == true && ($scope.searchCriterias.ndcNbr == "" && $scope.searchCriterias.itemNbr == "" &&
+										$scope.searchCriterias.poNbr == "" && $scope.searchCriterias.vendorNbr == "" &&
+										$scope.searchCriterias.lotNbr == "" && $scope.searchCriterias.locationNbr == "" )){
+									
+									$scope.errorDescriptionSearchList.push(angular.copy($scope.fieldValue.genrep_error_additionalFields_error));
+									returnValue = false;
+								}
+								/**Rule :RD2*/
+								if((transactionFromDate.getTime() - currentDate.getTime())/diffDays > 0){
+									$scope.errorDescriptionSearchList.push(angular.copy($scope.fieldValue.genrep_error_search_futureDate));
+									returnValue = false;
+								}
+								/**Rule :RD2*/
+								if((transactionToDate.getTime() - currentDate.getTime())/diffDays > 0){
+									if($scope.errorDescriptionSearchList.indexOf($scope.fieldValue.genrep_error_search_futureDate) == -1){
+										$scope.errorDescriptionSearchList.push(angular.copy($scope.fieldValue.genrep_error_search_futureDate));
+									}
+									returnValue = false;
+								}
+								/**Rule :RD2*/
+								if((transactionFromDate.getTime() - transactionToDate.getTime())/diffDays > 0){
+									$scope.errorDescriptionSearchList.push(angular.copy($scope.fieldValue.genrep_error_search_from_to_date));
+									returnValue = false;
+								}
+								/**Rule :RD4*/
+								if(((transactionToDate.getTime() - transactionFromDate.getTime())/diffDays)/365 > 0.5){
+									$scope.errorDescriptionSearchList.push(angular.copy($scope.fieldValue.genrep_error_search_from_diff_to_date));
+									returnValue = false;
+								}
+								/**Rule :RD3*/
+								if(((currentDate.getTime() - transactionFromDate.getTime())/diffDays)/365 > 6){
+									$scope.errorDescriptionSearchList.push(angular.copy($scope.fieldValue.genrep_error_search_sixyears));
+									returnValue = false;
+								}
+								
+								if($scope.searchCriterias.itemNbr != ''){
+									if(!$scope.validateNumeric($scope.searchCriterias.itemNbr)){
+										
+										$scope.errorDescriptionSearchList.push(angular.copy($scope.fieldValue.genrep_error_search_itemNbr));
+										returnValue = false;
+										}
+									}
+								
+								if($scope.searchCriterias.poNbr != ''){
+									if(!$scope.validateNumeric($scope.searchCriterias.poNbr)){
+										$scope.errorDescriptionSearchList.push(angular.copy($scope.fieldValue.genrep_error_search_poNbr));
+										returnValue = false;
+									}
+								}
+								if($scope.searchCriterias.vendorNbr != ''){
+									if(!$scope.validateNumeric($scope.searchCriterias.vendorNbr)){
+										$scope.errorDescriptionSearchList.push(angular.copy($scope.fieldValue.genrep_error_search_vendorNbr));
+										returnValue = false;
+									}
+								}
+								if($scope.searchCriterias.locationNbr != '' && $scope.searchCriterias.locationNbr != null){
+									if(!$scope.validateNumeric($scope.searchCriterias.locationNbr)){
+										$scope.errorDescriptionSearchList.push(angular.copy($scope.fieldValue.genrep_error_search_locationNbr));
+										returnValue = false;
+									}
+								}
+								if($scope.searchCriterias.locationNbr == null){
+									$scope.searchCriterias.locationNbr = "";
+								}
+							
+								document.body.scrollTop = 0;
+								return returnValue;
+							};
+							
+							/* Function to Logout */
+							$scope.ExitForLogin = function() {
+								LoadPreservedAttributes.setPoNumber("");
+								LoginService.setLoginUser("","");
+							};
+							$scope.logout = function() {
+							LoadPreservedAttributes.setRefreshFlag("0");
+							};
+							/*
+							 * Function to validate Numeric characters with
+							 * object
+							 */
+							$scope.validateNumeric = function(object) {
+								var refNumeric = /^[0-9]+$/;
+								
+								
+								if (!object.match(refNumeric)) {
+									return false;
+								}
+								return true;
+							};
+							$scope.validateAlphabetic = function(object) {
+								var refAlpha = /^[A-Za-z]+$/;
+								if (!object.match(refAlpha)) {
+									return false;
+								}
+								return true;
+							};
+							
+							
+							$scope.screenPopValidation = function(message) {
+								if(message != "Empty"){
+									var overlay = document.getElementById('overlay');
+									var specialBox = document.getElementById('specialBox');
+									overlay.style.opacity = .7;
+										overlay.style.display = "block";
+										specialBox.style.display = "block";
+										$scope.dimScreen = '1';
+										$scope.userMessage = message;
+																		
+										
+								}else{
+									var overlay = document.getElementById('overlay');
+									var specialBox = document.getElementById('specialBox');
+									overlay.style.opacity = .6;
+									if (overlay.style.display == "block") {
+										overlay.style.display = "None";
+										specialBox.style.display = "None";
+										$scope.dimScreen = '0';
+										$scope.successMessage = '0';
+									}
+								}
+								$timeout(function(){
+									$scope.successMessage = '0';
+									},2000);
+							};
+							$scope.showSuccessmessage = function(shipmentDetails){
+								$scope.plainMessage = "Shipment of Purchase Order Number "+shipmentDetails.poDetails.poNbr+" is successfully saved!";
+								/**$timeout(function(){
+									$scope.plainMessage = "";
+									},2000);*/
+							};
+							$scope.expireSession = function(){
+								
+								$timeout(function(){
+									$scope.ExitForLogin();
+									},parseInt($scope.fieldValue.expiryTime));
+							};
+							$scope.callDot = function() {
+								if($scope.waitScreenMessage.length <3){
+									$scope.waitScreenMessage = $scope.waitScreenMessage+".";
+								}else{
+									$scope.waitScreenMessage = "";
+								}
+								$timeout(function(){
+									$scope.callDot();
+									},600);
+							};
+							$timeout(function(){
+								$scope.callDot();
+								},600);
+						} ]);
+/*
+This directive allows us to pass a function in on an enter key to do what we want.
+*/
+genRepApplication.directive('ngEnter', function () {
+    return function (scope, element, attrs) {
+        element.bind("keydown keypress", function (event) {
+            if(event.which === 13) {
+                scope.$apply(function (){
+                    scope.$eval(attrs.ngEnter);
+                });
+ 
+                event.preventDefault();
+            }
+        });
+    };
+});
+//We already have a limitTo filter built-in to angular,
+//let's make a startFrom filter
+genRepApplication.filter('startFrom', function() {
+    return function(input, start) {
+        start = +start; //parse to int
+        return input.slice(start);
+    };
+});
+	function toggleOverlay() {
+		var overlay = document.getElementById('overlay');
+		var specialBox = document.getElementById('specialBox');
+		overlay.style.opacity = .8;
+		if (overlay.style.display == "block") {
+			overlay.style.display = "none";
+			specialBox.style.display = "none";
+		} else {
+			overlay.style.display = "block";
+			specialBox.style.display = "block";
+		}
+	}
+	function textAreaAdjust(overlay) {
+		overlay.style.height = "1px";
+		overlay.style.height = (overlay.scrollHeight)+"px";
+	}
+	function changeReadonly(overlay) {
+		overlay.readOnly = false;
+	}
+	

@@ -1,0 +1,597 @@
+
+<div>
+<div>
+	<div align="left" autofocus="true">
+		<table width="90%">
+			<tr>
+				<td>
+
+					<table width="80%" align="center">
+						<tr>
+							<td width="60%">
+								<table style="width: 90%" align="center">
+									<tr align="left"
+										ng-repeat="errorItem in errorDescriptionSearchResultList">
+										<td><span><b><font color="#FF0000" size="1%">{{errorItem}}</font>
+											</b> </span>
+										</td>
+									</tr>
+								</table></td>
+						</tr>
+					</table></td>
+			</tr>
+		</table>
+	</div>
+	<table width="100%">
+		<tr>
+			<td>
+				<table width="70%">
+					<tr align="center">
+						<td class="panel-heading"><span><b><h4>{{fieldValue.genrep_purchase_order_information}}</h4>
+							</b> </span>
+						</td>
+					</tr>
+				</table>
+				<table width="50%" align="center">
+					<tr>
+						<td width="60%" class="table table-bordered">
+							<div title="PO Information">
+								<form name="captureTransationForm">
+
+									<table style="width: 70%" align="center">
+										<tr>
+											<td colspan="1"><b>{{fieldValue.genrep_purchase_order_number}}</b>
+											</td>
+										</tr>
+										<tr>
+											<td colspan="1" width=60%><input type="text"
+												ng-model="shipmentDetail.poDetails.poNbr"
+												class="form-control moz-placeholder"
+												ng-bind="{{shipmentDetail.poDetails.poNbr}}"
+												readonly="readonly"></td>
+										</tr>
+										<tr>
+											<td>&nbsp;</td>
+											<td>&nbsp;</td>
+											<td>&nbsp;</td>
+
+										</tr>
+
+									</table>
+
+								</form>
+							</div></td>
+					</tr>
+
+				</table></td>
+		</tr>
+	</table>
+
+	<table width="100%">
+		<tr>
+			<td>
+				<table width="80%" align="left">
+
+					<tr align="left">
+						<td class="panel-heading"><span><b><h4>
+										{{fieldValue.genrep_shipment_details}}
+										<h4>
+							</b> </span>
+						</td>
+
+					</tr>
+				</table>
+				<table width="100%" align="center" class="table table-bordered">
+
+					<tr>
+						<td width="60%" class="table table-bordered"
+							style="border-color: black; border: 2px solid;">
+							<table style="width: 90%" align="center">
+								<div ng-show="highlightMsg == 1"
+									style="color: red; font-size: 95%">{{fieldValue.genrep_shipmentdetails_errMsg_highlightError}}</div>
+
+
+								<tr>
+									<td width="15%">&nbsp;</td>
+									<td align="left" width="25%"><b>{{fieldValue.genrep_trasnsaction_date}}</b>
+										<input type="date" class="form-control moz-placeholder"
+										readonly="readonly"
+										ng-model="shipmentDetail.ownershipTransferDate1" required="">
+									</td>
+									<td width="4%">&nbsp;</td>
+									<td align="left" width="25%"><b>{{fieldValue.genrep_shipment_date}}</b>
+										<input ng-disabled="editForm.$invalid" type=date
+										class="form-control moz-placeholder" readonly="readonly"
+										ng-model="shipmentDetail.shipmentDate1" required="">
+									</td>
+
+									<td width="15%">&nbsp;</td>
+								</tr>
+
+								<tr>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+								</tr>
+
+
+							</table>
+						</td>
+					</tr>
+
+				</table>
+			</td>
+		</tr>
+	</table>
+	<table width="100%">
+		<tr>
+			<td>
+				<table width="100%" align="center" class="table table-bordered">
+					<tr>
+						<td width="60%" class="table table-bordered"
+							style="border-color: black; border: 2px solid;">
+							<table style="width: 90%" align="center">
+								<tr>
+									<td align="left" width="20%"><b>{{fieldValue.genrep_transaction_statement_history}}</b>
+									</td>
+
+									<td width="4%">&nbsp;</td>
+									<td align="left" width="60%"><textarea
+											class="form-control moz-placeholder" readonly="readonly"
+											ng-model="shipmentDetail.statementTxt" required="">
+												</textarea></td>
+									<td width="4%">&nbsp;</td>
+
+									<td align="left" width="10%"><input type="button"
+										ng-class="{'disabled':  shipmentDetail.statementPath == null}"
+										value="Review Uploaded Document"
+										ng-click="clickReviewDocument('stmt')"
+										class="btn btn-secondary"></input></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+
+				</table>
+			</td>
+		</tr>
+	</table>
+	<!-- <table width="100%">
+		<tr>
+			<td>
+				<table width="100%" align="center" class="table table-bordered">
+					<tr>
+						<td width="60%" class="table table-bordered"
+							style="border-color: black; border: 2px solid;">
+							<table style="width: 90%" align="center">
+								<div ng-show="highlightMsg == 1"
+									style="color: red; font-size: 95%">{{fieldValue.genrep_shipmentdetails_errMsg_highlightError}}</div>
+
+
+								<tr>
+									<td align="left" width="10%"><b>{{fieldValue.genrep_transaction_history}}</b>
+									</td>
+
+									<td width="80%">&nbsp;</td>
+									<td align="left" width="10%"><input type="button"
+										ng-class="{'disabled':  shipmentDetail.historyPath == null}"
+										value="Review Uploaded Document"
+										ng-click="clickReviewDocument('hist')"
+										class="btn btn-secondary"></input></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+
+				</table>
+			</td>
+		</tr>
+	</table> -->
+</div>
+
+<div id="shipment_lines" style="position: relative; height: 500px;">
+	<table width="100%" style="text-align: center">
+		<td width="30%">
+			<div style="position: relative; height: 500px;">
+				<table width="100%">
+
+					<tr>
+						<td width="60%" class="table table-bordered">
+							<table width="80%" align="left">
+
+								<tr align="center">
+									<td><span><b><h4>
+													Seller Address
+													<h4>
+										</b> </span>
+									</td>
+
+								</tr>
+							</table>
+							<table style="width: 90%" align="center"
+								ng-repeat="shipmentAddressDetail in shipmentDetail.shipmentAddressDetailList"
+								ng-if="shipmentAddressDetail.shpmtAddressCode == 'SE'">
+								<tr>
+									<td align="left" width="20%"><b>{{fieldValue.genrep_name}}</b>
+									</td>
+									<td width="4%">&nbsp;</td>
+									<td align="left" width="60%">{{shipmentAddressDetail.companyName}}</td>
+								</tr>
+								<tr>
+									<td align="left" width="20%"><b>{{fieldValue.genrep_street}}</b>
+									</td>
+									<td width="4%">&nbsp;</td>
+									<td align="left" width="60%">{{shipmentAddressDetail.addressLine1}}</td>
+								</tr>
+								<tr>
+									<td align="left" width="20%"><b>{{fieldValue.genrep_city}}</b>
+									</td>
+									<td width="4%">&nbsp;</td>
+									<td align="left" width="60%">{{shipmentAddressDetail.cityName}}</td>
+								</tr>
+								<tr>
+									<td align="left" width="20%"><b>{{fieldValue.genrep_state}}</b>
+									</td>
+									<td width="4%">&nbsp;</td>
+									<td align="left" width="60%">{{shipmentAddressDetail.stateName}}</td>
+								</tr>
+								<tr>
+									<td align="left" width="20%"><b>{{fieldValue.genrep_zipcode}}</b>
+									</td>
+									<td width="4%">&nbsp;</td>
+									<td align="left" width="60%">{{shipmentAddressDetail.postalCode}}</td>
+								</tr>
+								<tr>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td width="60%" class="table table-bordered">
+							<table width="80%" align="left">
+
+								<tr align="center">
+									<td><span><b><h4>
+													Buyer Address
+													<h4>
+										</b> </span>
+									</td>
+
+								</tr>
+							</table>
+							<table style="width: 90%" align="center"
+								ng-repeat="shipmentAddressDetail in shipmentDetail.shipmentAddressDetailList"
+								ng-if="shipmentAddressDetail.shpmtAddressCode == 'BY'">
+								<tr>
+									<td align="left" width="20%"><b>{{fieldValue.genrep_name}}</b>
+									</td>
+									<td width="4%">&nbsp;</td>
+									<td align="left" width="60%">{{shipmentAddressDetail.companyName}}</td>
+								</tr>
+								<tr>
+									<td align="left" width="20%"><b>{{fieldValue.genrep_street}}</b>
+									</td>
+									<td width="4%">&nbsp;</td>
+									<td align="left" width="60%">{{shipmentAddressDetail.addressLine1}}</td>
+								</tr>
+								<tr>
+									<td align="left" width="20%"><b>{{fieldValue.genrep_city}}</b>
+									</td>
+									<td width="4%">&nbsp;</td>
+									<td align="left" width="60%">{{shipmentAddressDetail.cityName}}</td>
+								</tr>
+								<tr>
+									<td align="left" width="20%"><b>{{fieldValue.genrep_state}}</b>
+									</td>
+									<td width="4%">&nbsp;</td>
+									<td align="left" width="60%">{{shipmentAddressDetail.stateName}}</td>
+								</tr>
+								<tr>
+									<td align="left" width="20%"><b>{{fieldValue.genrep_zipcode}}</b>
+									</td>
+									<td width="4%">&nbsp;</td>
+									<td align="left" width="60%">{{shipmentAddressDetail.postalCode}}</td>
+								</tr>
+								<tr>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+					</tr>
+				</table>
+			</div></td>
+		<td width="70%">
+			<div
+				style="overflow: scroll; height: 100%;  padding: 10px">
+				<table class="table-bordered" style="font-size: 90%;" width="1000px">
+					<thead
+						style="text-align: center; width: 90%; background-color: #8dcdfa">
+						
+						<td width="10%"><b>{{fieldValue.genrep_line}}</b></td>
+						<td width="10%"><b>{{fieldValue.genrep_item_number}}</b>
+						</td>
+						<td width="10%"><b>{{fieldValue.genrep_product_name_dosage_and_strength}}</b>
+						</td>
+						<td width="10%"><b>{{fieldValue.genrep_NDC}}</b></td>
+						<td width="10%"><b>{{fieldValue.genrep_lot}}</b></td>
+						<td width="10%"><b>{{fieldValue.genrep_expiration_date}}</b>
+						</td>
+						<td width="10%"><b>{{fieldValue.genrep_rec_qty}}</b></td>
+						<td width="10%"><b>{{fieldValue.genrep_shipped_qty}}</b>
+						</td>
+						<td width="10%"><b>{{fieldValue.genrep_unit_of_measure}}</b>
+						</td>
+						<td width="10%"><b>{{fieldValue.genrep_pack_size}}</b>
+						</td>
+
+					</thead>
+
+					<tbody style="text-align: center"
+						ng-repeat="lineItem in shipmentDetail.shipmentItemDetails">
+								<tr>
+									<td width="10%">{{lineItem.poLineDetails.poLineNbr}}</td>
+									<td width="10%">{{lineItem.poLineDetails.itemNbr}}</td>
+									<td width="10%">{{lineItem.itemDesc}}</td>
+									<td width="10%">{{lineItem.ndcNbr}}</td>
+									<td width="10%">{{lineItem.drugLotNbr}}</td>
+									<td width="10%">{{lineItem.drugLotExpiryDate1}}</td>
+									<td width="10%">{{lineItem.itemReceiveQty}}</td>
+									<td width="10%">{{lineItem.itemShipQty}}</td>
+									<td width="10%">{{lineItem.qtyUOMCode}}</td>
+									<td width="10%">{{lineItem.packSize}}</td>
+								</tr>
+								<tr ng-repeat="history in lineItem.shipmentHistoryDetails" ng-if = "history.itemNbr != null" align="right">
+									
+									<td width="10%" colspan="10" align="center">Customer : {{history.companyName}}  Number of containers : {{history.containerNumber}}
+									 Transaction Date : {{history.transactionDate}}  Shipment Date : {{history.shipmentDate}}</td>
+								</tr>
+					</tbody>
+
+				</table>
+			</div>
+			<table>
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+
+				</tr>
+			</table>
+			</td>
+
+	</table>
+	<table>
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+
+				</tr>
+			</table>
+			</td>
+
+	</table>
+	<table align="center">
+				<tr align="center">
+					
+					<td colspan="1"><input type="button"
+						ng-disabled="captureTransationForm.$invalid"
+						value="{{fieldValue.genrep_print}}"
+						ng-click="printDiv('print_info')" class="btn btn-secondary"></input>
+						<!-- <div  ng-show="errorSwitch_PO == 1"  style="color:white;font-size: 80%">1</div></b>
+												<div  ng-show="errorSwitch_NDC == 1"  style="color:white;font-size: 80%">1</div></b> -->
+					<td>
+					<td colspan="1"><input type="button"
+						ng-disabled="captureTransationForm.$invalid"
+						value="{{fieldValue.genrep_back}}" ng-click="backOption(2)"
+						class="btn btn-secondary"></input> <!-- <div  ng-show="errorSwitch_PO == 1"  style="color:white;font-size: 80%">1</div></b>
+												<div  ng-show="errorSwitch_NDC == 1"  style="color:white;font-size: 80%">1</div></b> -->
+					<td>
+				</tr>
+
+			</table>
+	<br />
+
+
+</div>
+<div title="Print Details" ng-show="false" id="print_info">
+	<table width="90%" align="center">
+
+		<tr>
+			<td width="90%">
+				<table style="width: 90%" align="center">
+					<tr>
+
+						<td width="20%">
+							<ul class="nav navbar-nav">
+								<li><img src="images/walmart_logo.png" width="100%"
+									style="" height="100%" /></li>
+							</ul></td>
+						<td width="4%">&nbsp;</td>
+
+						<td colspan="5" align="left" width="70%"><b>DSCSA
+								ASN/Shipment Information</b>
+						</td>
+
+
+					</tr>
+
+					<tr>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td align="left" width="15%"><b>{{fieldValue.genrep_PO_number}}</b>
+						</td>
+						<td align="left" width="15%">{{shipmentDetail.poDetails.poNbr}}
+						</td>
+						<td width="4%">&nbsp;</td>
+						<td align="left" width="15%"><b>{{fieldValue.genrep_trasnsaction_date}}</b>
+						</td>
+						<td align="left" width="15%">{{shipmentDetail.ownershipTransferDate1}}
+						</td>
+						<td width="4%">&nbsp;</td>
+						<td align="left" width="15%"><b>{{fieldValue.genrep_shipment_date}}</b>
+						</td>
+						<td align="left" width="15%">{{shipmentDetail.shipmentDate1}}
+						</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td align="left" width="15%" colspan="2"><b>{{fieldValue.genrep_transaction_statement}}</b>
+					</tr>
+					</td>
+
+
+					<tr>
+						<td colspan="8" align="justify" width="15%">{{shipmentDetail.statementTxt}}
+						</td>
+
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td align="left" width="15%" valign="top"><b>Seller
+								Address</b></td>
+						<td colspan="3" align="left" width="15%">
+							<table
+								ng-repeat="shipmentAddressDetail in shipmentDetail.shipmentAddressDetailList"
+								ng-if="shipmentAddressDetail.shpmtAddressCode == 'SE'">
+								<tr>
+									<td>{{shipmentAddressDetail.companyName}}</td>
+								</tr>
+								<tr>
+									<td>{{shipmentAddressDetail.addressLine1}}</td>
+								</tr>
+								<tr>
+									<td>{{shipmentAddressDetail.addressLine2}}</td>
+								</tr>
+								<tr>
+									<td>{{shipmentAddressDetail.cityName}}</td>
+								</tr>
+								<tr>
+									<td>{{shipmentAddressDetail.stateName}}</td>
+								</tr>
+								<tr>
+									<td>{{shipmentAddressDetail.postalCode}}</td>
+								</tr>
+
+							</table></td>
+
+
+						<td align="left" width="15%" valign="top"><b>Buyer
+								Address</b></td>
+						<td colspan="3" align="left" width="15%">
+							<table
+								ng-repeat="shipmentAddressDetail in shipmentDetail.shipmentAddressDetailList"
+								ng-if="shipmentAddressDetail.shpmtAddressCode == 'BY'">
+								<tr>
+									<td>{{shipmentAddressDetail.companyName}}</td>
+								</tr>
+								<tr>
+									<td>{{shipmentAddressDetail.addressLine1}}</td>
+								</tr>
+								<tr>
+									<td>{{shipmentAddressDetail.addressLine2}}</td>
+								</tr>
+								<tr>
+									<td>{{shipmentAddressDetail.cityName}}</td>
+								</tr>
+								<tr>
+									<td>{{shipmentAddressDetail.stateName}}</td>
+								</tr>
+								<tr>
+									<td>{{shipmentAddressDetail.postalCode}}</td>
+								</tr>
+
+							</table></td>
+					</tr>
+
+
+				</table>
+				<table width=90% class="table table-bordered" style="size: 90%">
+
+					<thead
+						style="text-align: center; width: 90%; background-color: #8dcdfa">
+
+						<td width="9%"><b>{{fieldValue.genrep_line}}</b></td>
+						<td width="9%"><b>{{fieldValue.genrep_item_number}}</b>
+						</td>
+						<td width="9%"><b>{{fieldValue.genrep_product_name_dosage_and_strength}}</b>
+						</td>
+						<td width="9%"><b>NDC</b></td>
+						<td width="9%"><b>Lot#</b></td>
+						<td width="9%"><b>{{fieldValue.genrep_expiration_date}}</b>
+						</td>
+						<td width="9%"><b>{{fieldValue.genrep_rec_qty}}</b></td>
+						<td width="9%"><b>{{fieldValue.genrep_shipped_qty}}</b>
+						</td>
+						<td width="9%"><b>{{fieldValue.genrep_unit_of_measure}}</b>
+						</td>
+						<td width="9%"><b>Pack Size</b></td>
+
+					</thead>
+
+					<tbody style="text-align: center"
+						ng-repeat="lineItem in shipmentDetail.shipmentItemDetails">
+								<tr>
+									<td width="10%">{{lineItem.poLineDetails.poLineNbr}}</td>
+									<td width="10%">{{lineItem.poLineDetails.itemNbr}}</td>
+									<td width="10%">{{lineItem.itemDesc}}</td>
+									<td width="10%">{{lineItem.ndcNbr}}</td>
+									<td width="10%">{{lineItem.drugLotNbr}}</td>
+									<td width="10%">{{lineItem.drugLotExpiryDate1}}</td>
+									<td width="10%">{{lineItem.itemReceiveQty}}</td>
+									<td width="10%">{{lineItem.itemShipQty}}</td>
+									<td width="10%">{{lineItem.qtyUOMCode}}</td>
+									<td width="10%">{{lineItem.packSize}}</td>
+								</tr>
+								<tr ng-repeat="history in lineItem.shipmentHistoryDetails" ng-if = "history.itemNbr != null" >
+									<td width="10%" colspan="10" align="center" >Customer : {{history.companyName}}  Number of containers : {{history.containerNumber}}
+									 Transaction Date : {{history.transactionDate}}  Shipment Date : {{history.shipmentDate}}</td>
+								</tr>
+					</tbody>
+
+				</table></td>
+		</tr>
+
+	</table>
+</div>
+</div>
